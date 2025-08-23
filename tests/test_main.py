@@ -15,7 +15,7 @@ class TestMain(unittest.TestCase):
     # always relates to the unit feature being tested
     def test_main_runs_without_failure(self):
         """Test that main() executes without raising any exceptions."""
-        try
+        try:
             main.main()
         except Exception as e:
             self.fail(f"main() raised an exception: {e}")
