@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ac3bf6a0-dbc8-457b-be40-346a3742d851" name="Changes" comment="tests for decorator, concludng all core tests">
+    <list default="true" id="ac3bf6a0-dbc8-457b-be40-346a3742d851" name="Changes" comment="pytest automation">
+      <change afterPath="$PROJECT_DIR$/alioth/core/connections.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/core/test_bootstrap.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/core/test_bootstrap.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,7 +89,7 @@
       <workItem from="1755933083183" duration="8878000" />
       <workItem from="1755945741098" duration="15868000" />
       <workItem from="1756001583302" duration="28012000" />
-      <workItem from="1756032486187" duration="4379000" />
+      <workItem from="1756032486187" duration="5381000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit, hello world">
       <option name="closed" value="true" />
@@ -179,7 +179,15 @@
       <option name="project" value="LOCAL" />
       <updated>1756033176468</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="pytest automation">
+      <option name="closed" value="true" />
+      <created>1756072204603</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1756072204603</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -225,7 +233,8 @@
     <MESSAGE value="working tests for logging setup in bootstrap module" />
     <MESSAGE value="working tests for environment, now working on tests for decorator" />
     <MESSAGE value="tests for decorator, concludng all core tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="tests for decorator, concludng all core tests" />
+    <MESSAGE value="pytest automation" />
+    <option name="LAST_COMMIT_MESSAGE" value="pytest automation" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Alioth$main.coverage" NAME="main Coverage Results" MODIFIED="1756071634241" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
