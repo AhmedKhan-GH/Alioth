@@ -3,17 +3,21 @@
 import os
 
 from dotenv import load_dotenv
+import logging
+import sys
 
 from alioth.app.application import run_application
-from alioth.core.environment import *
-from alioth.core.bootstrap import *
+from alioth.core.environment import check_environment_vars
+from alioth.core.bootstrap import setup_logging
+from alioth.core.decorators import try_catch
 
 log = logging.getLogger(__name__)
 
-setup_logging(handlers=[logging.StreamHandler(sys.stdout),
-                        logging.FileHandler('app.log', mode='w')])
+setup_logging(level=logging.DEBUG,
+              handlers=[logging.FileHandler('app.log', mode='w'),
+                        logging.StreamHandler(sys.stdout)])
 
-@try_catch(exit_code = 1, verbose=True)
+@try_catch()
 def main():
 
     load_dotenv()

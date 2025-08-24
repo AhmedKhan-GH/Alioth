@@ -4,17 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ac3bf6a0-dbc8-457b-be40-346a3742d851" name="Changes" comment="working decorator based error handling, groundwork for file system">
-      <change afterPath="$PROJECT_DIR$/alioth/core/bootstrap.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/core/test_environment.py" afterDir="false" />
+    <list default="true" id="ac3bf6a0-dbc8-457b-be40-346a3742d851" name="Changes" comment="working tests for logging setup in bootstrap module">
+      <change afterPath="$PROJECT_DIR$/test/core/test_decorator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/alioth/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/alioth/app/application.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alioth/app/application.py" beforeDir="false" afterPath="$PROJECT_DIR$/alioth/app/application.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/alioth/core/decorators.py" beforeDir="false" afterPath="$PROJECT_DIR$/alioth/core/decorators.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/alioth/core/environment.py" beforeDir="false" afterPath="$PROJECT_DIR$/alioth/core/environment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/alioth/core/logging_setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/core/test_bootstrap.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/test_main.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/core/test_environment.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/core/test_environment.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,12 +46,15 @@
     "Python tests.Python tests in tests_main.py.executor": "Run",
     "Python.__init__.executor": "Run",
     "Python.application.executor": "Run",
+    "Python.decorators.executor": "Run",
+    "Python.environment.executor": "Run",
     "Python.main.executor": "Run",
     "Python.test_main.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master",
+    "last_opened_file_path": "C:/Users/ahmed/PycharmProjects/Alioth",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -65,6 +65,9 @@
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\ahmed\PycharmProjects\Alioth" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\ahmed\PycharmProjects\Alioth" />
     </key>
@@ -88,7 +91,7 @@
       <workItem from="1755928169909" duration="4643000" />
       <workItem from="1755933083183" duration="8878000" />
       <workItem from="1755945741098" duration="15868000" />
-      <workItem from="1756001583302" duration="14432000" />
+      <workItem from="1756001583302" duration="27979000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit, hello world">
       <option name="closed" value="true" />
@@ -154,7 +157,15 @@
       <option name="project" value="LOCAL" />
       <updated>1756011398028</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="working tests for logging setup in bootstrap module">
+      <option name="closed" value="true" />
+      <created>1756018562687</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1756018562687</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -197,13 +208,16 @@
     <MESSAGE value="successful gitignore" />
     <MESSAGE value="old approach of manual environment checking" />
     <MESSAGE value="working decorator based error handling, groundwork for file system" />
-    <option name="LAST_COMMIT_MESSAGE" value="working decorator based error handling, groundwork for file system" />
+    <MESSAGE value="working tests for logging setup in bootstrap module" />
+    <option name="LAST_COMMIT_MESSAGE" value="working tests for logging setup in bootstrap module" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Alioth$main.coverage" NAME="main Coverage Results" MODIFIED="1756016789081" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Alioth$.coverage" NAME=" Coverage Results" MODIFIED="1756018199075" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Alioth$main.coverage" NAME="main Coverage Results" MODIFIED="1756030570604" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Alioth$.coverage" NAME=" Coverage Results" MODIFIED="1756031263120" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Alioth$__init__.coverage" NAME="__init__ Coverage Results" MODIFIED="1755990384768" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test" />
-    <SUITE FILE_PATH="coverage/Alioth$application.coverage" NAME="application Coverage Results" MODIFIED="1756016755927" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/alioth/app" />
+    <SUITE FILE_PATH="coverage/Alioth$environment.coverage" NAME="environment Coverage Results" MODIFIED="1756031106236" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/alioth/core" />
+    <SUITE FILE_PATH="coverage/Alioth$application.coverage" NAME="application Coverage Results" MODIFIED="1756027602018" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/alioth/app" />
     <SUITE FILE_PATH="coverage/Alioth$test_main.coverage" NAME="test_main Coverage Results" MODIFIED="1755929258881" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/Alioth$decorators.coverage" NAME="decorators Coverage Results" MODIFIED="1756031099028" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/alioth/core" />
   </component>
 </project>
