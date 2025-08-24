@@ -7,7 +7,8 @@ from typing import Union, Type, Tuple
 
 # log at info level, visible at the second-lowest level of logging, this serves
 # to outline program execution flow without cluttering the logs with validation
-def try_catch(exit_code=1, exit_on_error=True, default_return=None, catch_exceptions: type = BaseException):
+def try_catch(exit_code=1, exit_on_error=True, default_return=None,
+              catch_exceptions: Union[Type[BaseException], Tuple[Type[BaseException], ...]] = BaseException):
     """Decorator to catch exceptions and exit with a specific exit code.
 
     Args:
