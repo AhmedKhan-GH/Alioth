@@ -2,6 +2,9 @@ import unittest
 import os
 from unittest.mock import patch
 import sys
+
+from anyio.lowlevel import cancel_shielded_checkpoint
+
 from alioth.core.environment import *
 
 class TestEnvironmentValidation(unittest.TestCase):
@@ -14,6 +17,21 @@ class TestEnvironmentValidation(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         logging.disable(logging.NOTSET)
+
+    def test_check_filesystem_access_success(self):
+        check_filesystem_access()
+
+    @patch('builtins.open', side_effect=OSError())
+    @patch('sys.exit')
+    def test_check_filesystem_access_failure(self, mock_exit, mock_open):
+        check_filesystem_access()
+        mock_exit.assert_called_once_with(2)
+
+    @patch('os.remove', side_effect=IOError())
+    @patch('sys.exit')
+    def check_filesystem_remove_failure(self, mock_exit):
+        check_filesystem_access()
+        mock_exit.assert_called_once_with(2)
 
     @patch.dict(os.environ, {'TEST_VAR': 'test_value'}, clear = False)
     def test_check_environment_vars_success(self):

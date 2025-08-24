@@ -7,9 +7,9 @@ import logging
 import sys
 
 from alioth.app.application import run_application
-from alioth.core.environment import check_environment_vars
 from alioth.core.bootstrap import setup_logging
 from alioth.core.decorators import try_catch
+import alioth.core.environment as env
 
 log = logging.getLogger(__name__)
 
@@ -20,9 +20,14 @@ setup_logging(level=logging.DEBUG,
 @try_catch()
 def main():
 
+    #verifies we can read environment vars and write logs
+    env.check_filesystem_access()
+
+    #loads environment vars from the.env file after verification
     load_dotenv()
 
-    check_environment_vars(['OPENAI_API_KEY'])
+    #verifies we have all the required environment vars
+    env.check_environment_vars(['OPENAI_API_KEY'])
 
     run_application()
 
