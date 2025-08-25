@@ -26,8 +26,9 @@ def main():
     #loads environment vars from the.env file after verification
     load_dotenv()
 
+    #we can ignore this as we will instead be checking lazily
     #verifies we have all the required environment vars
-    env.check_environment_vars(['OPENAI_API_KEY'])
+    #env.check_required_environment_vars(['OPENAI_API_KEY'])
 
     run_application()
 

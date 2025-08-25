@@ -5,7 +5,7 @@ import os
 import inspect
 from typing import Union, Type, Tuple
 
-# log at info level, visible at the second-lowest level of logging, this serves
+# log at debug level, visible at the second-lowest level of logging, this serves
 # to outline program execution flow without cluttering the logs with validation
 def try_catch(exit_code=1, exit_on_error=True, default_return=None,
               catch_exceptions: Union[Type[BaseException], Tuple[Type[BaseException], ...]] = BaseException):
@@ -22,10 +22,10 @@ def try_catch(exit_code=1, exit_on_error=True, default_return=None,
         def wrapper(*args, **kwargs):
             log = logging.getLogger(func.__module__)
 
-            log.info(f"Starting {func.__name__}")
+            log.debug(f"Starting {func.__name__}")
             try:
                 result = func(*args, **kwargs)
-                log.info(f"Completed {func.__name__}")
+                log.debug(f"Completed {func.__name__}")
                 return result
 
             # only catch specified exception types

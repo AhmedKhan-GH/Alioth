@@ -1,31 +1,27 @@
 import os
 import logging
 from .decorators import *
+import tempfile
 
 log = logging.getLogger(__name__)
 
 @try_catch(exit_code = 2, catch_exceptions = (OSError, IOError))
 def check_filesystem_access():
-    test_file = "test.txt"
-    with open(test_file, "w") as f:
+    """Verify filesystem access by writing and deleting a test file."""
+    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
         f.write("test")
-    os.remove(test_file)
-    log.debug("Filesystem access verified")
+        temp_path = f.name
+    os.remove(temp_path)
+    log.info("Filesystem access verified")
 
-# log as debug, only visible on the lowest level of logging
 @try_catch(exit_code = 2, catch_exceptions = EnvironmentError)
-def check_environment_vars(required_vars):
-    """Check if required environment variables are set."""
-    missing = []
-    for var in required_vars:
-        if not os.getenv(var):
-            missing.append(var)
-            log.debug(f"Missing environment variable: {var}")
+def get_environment_variable(key, required = False, default_value = None):
+    """Lazy check to get an environment variable and raise an exception if it is missing."""
+    if not os.getenv(key):
+        if required:
+            raise EnvironmentError(f"Missing required environment variable: {key}")
         else:
-            log.debug(f"Found environment variable: {var}")
-
-    if missing:
-        raise EnvironmentError(f"Missing environment variables: {missing}")
-
-    log.debug("All environment variables found")
+            log.info(f"Missing optional environment variable: {key}")
+            if default_value: os.environ[key] = default_value
+    log.info(f"Found environment variable: {key}")
 
