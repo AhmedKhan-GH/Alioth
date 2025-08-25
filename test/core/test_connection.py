@@ -19,14 +19,21 @@ class TestUrlConnection(unittest.TestCase):
         mock_response = Mock()
         mock_response.status_code = 200
         mock_get.return_value = mock_response
-        result = check_url_connection('https://example.com')
+
+        headers = {'Authorization': 'Bearer test-key'}
+        result = check_url_connection('https://example.com', headers, timeout=5)
         self.assertTrue(result)
+        mock_get.assert_called_once_with('https://example.com', headers=headers, timeout=5)
 
     @patch('requests.get')
     def test_check_url_connection_failure(self, mock_get):
         mock_get.side_effect = requests.exceptions.ConnectionError()
-        result = check_url_connection('https://example.com')
+
+
+        headers = {'Authorization': 'Bearer test-key'}
+        result = check_url_connection('https://example.com', headers, timeout=5)
         self.assertFalse(result)
+        mock_get.assert_called_once_with('https://example.com', headers=headers, timeout=5)
 
 
 class TestPortConnection(unittest.TestCase):
@@ -55,6 +62,7 @@ class TestPortConnection(unittest.TestCase):
         mock_sock_instance = Mock()
         mock_sock_instance.connect_ex.return_value = 1
         mock_socket.return_value = mock_sock_instance
+
 
         result = check_port_connection('localhost', 8080)
         self.assertFalse(result)

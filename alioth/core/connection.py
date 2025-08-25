@@ -10,11 +10,11 @@ import socket
 log = logging.getLogger(__name__)
 
 @try_catch(exit_on_error=False, default_return=False, catch_exceptions=requests.exceptions.RequestException)
-def check_url_connection(url, timeout = 5):
+def check_url_connection(url, headers, timeout = 5):
     """Check connection to a given URL."""
-    response = requests.get(url, timeout=timeout)
+    response = requests.get(url, headers = headers, timeout=timeout)
     is_available = response.status_code == 200
-    log.info(f"Connection to {url}: {'OK' if is_available else 'FAILED'}")
+    log.debug(f"Connection to {url}: {'OK' if is_available else 'FAILED'}")
     return is_available
 
 @try_catch(exit_on_error=False, default_return=False, catch_exceptions=socket.error)
@@ -27,5 +27,5 @@ def check_port_connection(host, port, timeout = 5):
     sock.close()
 
     is_available = result == 0
-    log.info(f"Connection to {host}:{port}: {'OK' if is_available else 'FAILED'}")
+    log.debug(f"Connection to {host}:{port}: {'OK' if is_available else 'FAILED'}")
     return is_available

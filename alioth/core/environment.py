@@ -1,5 +1,7 @@
 import os
 import logging
+
+
 from .decorators import *
 import tempfile
 
@@ -19,9 +21,11 @@ def get_environment_variable(key, required = False, default_value = None):
     """Lazy check to get an environment variable and raise an exception if it is missing."""
     if not os.getenv(key):
         if required:
-            raise EnvironmentError(f"Missing required environment variable: {key}")
+            raise EnvironmentError(f"missing required environment variable: {key}")
         else:
-            log.info(f"Missing optional environment variable: {key}")
+            log.warning(f"Missing optional environment variable: {key}")
             if default_value: os.environ[key] = default_value
+            return default_value
     log.info(f"Found environment variable: {key}")
+    return os.getenv(key)
 
