@@ -14,10 +14,9 @@ def run_application():
     log.info("Activating Alioth")
 
     oai = OpenAIClient()
-    oai.check_connection()
 
-    oll = OllamaClient()
-    oll.check_connection()
+    #oll = OllamaClient()
+    #oll.check_connection()
     # need to check ollama connection here before creating a client
 
     log.info("Deactivating Alioth")
