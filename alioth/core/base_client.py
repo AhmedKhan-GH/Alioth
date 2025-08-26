@@ -20,6 +20,10 @@ class BaseClient(ABC):
     def _check_connection(self) -> bool:
         pass
 
+    @try_catch(exit_on_error=False, default_return=[])
+    @abstractmethod
+    def _list_models(self) -> list:
+        pass
 
     @try_catch(exit_on_error=False, default_return=None)
     @abstractmethod
@@ -42,6 +46,9 @@ class BaseClient(ABC):
         log.info(f"{self.__class__.__name__} connection check completed: {'OK' if result else 'FAILED'}")
         return result
 
-
-
+    def list_models(self) -> list:
+        log.info(f"{self.__class__.__name__} retrieving list of models")
+        models = self._list_models()
+        log.info(f"{self.__class__.__name__} found {len(models)} models")
+        return models
 

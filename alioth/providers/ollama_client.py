@@ -12,3 +12,6 @@ class OllamaClient(BaseClient):
 
     def _create_client(self) -> Any:
         return ollama.Client()
+
+    def _list_models(self) -> list:
+        return [m['model'] for m in self._client.list()['models']]

@@ -9,8 +9,10 @@ def run_application():
     log.info("Activating Alioth")
 
     oai = OpenAIClient()
+    print(oai.list_models())
 
     oll = OllamaClient()
+    print(oll.list_models())
 
     log.info("Deactivating Alioth")
 

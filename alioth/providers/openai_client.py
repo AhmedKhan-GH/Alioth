@@ -13,3 +13,6 @@ class OpenAIClient(BaseClient):
 
     def _create_client(self):
         return OpenAI(api_key = get_environment_variable('OPENAI_API_KEY', required = True))
+
+    def _list_models(self) -> list:
+        return [m.id for m in self._client.models.list().data]
