@@ -7,11 +7,9 @@ from ..core.environment import *
 class OpenAIClient(BaseClient):
     """OpenAI client provider."""
 
-    @try_catch(exit_on_error=False, default_return=False)
     def _check_connection(self) -> bool:
         api_key = get_environment_variable('OPENAI_API_KEY', required = True)
         return check_url_connection('https://api.openai.com/v1/models', headers = {'Authorization': f"Bearer {api_key}"})
 
-    @try_catch(exit_on_error=False, default_return=None)
     def _create_client(self):
         return OpenAI(api_key = get_environment_variable('OPENAI_API_KEY', required = True))

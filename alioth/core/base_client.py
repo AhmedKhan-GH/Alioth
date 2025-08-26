@@ -15,11 +15,13 @@ class BaseClient(ABC):
         self._connected = False
         self._initialize_connection()
 
-    # tested
+    @try_catch(exit_on_error=False, default_return=None)
     @abstractmethod
     def _check_connection(self) -> bool:
         pass
 
+
+    @try_catch(exit_on_error=False, default_return=None)
     @abstractmethod
     def _create_client(self) -> Any:
         pass

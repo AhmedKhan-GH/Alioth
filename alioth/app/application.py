@@ -1,8 +1,3 @@
-import openai
-
-from alioth.core.connection import *
-from alioth.core.environment import *
-from alioth.core.base_client import *
 from alioth.providers.ollama_client import OllamaClient
 from alioth.providers.openai_client import *
 
@@ -15,9 +10,7 @@ def run_application():
 
     oai = OpenAIClient()
 
-    #oll = OllamaClient()
-    #oll.check_connection()
-    # need to check ollama connection here before creating a client
+    oll = OllamaClient()
 
     log.info("Deactivating Alioth")
 
