@@ -10,7 +10,7 @@ import socket
 log = logging.getLogger(__name__)
 
 @try_catch(exit_on_error=False, default_return=False, catch_exceptions=requests.exceptions.RequestException)
-def check_url_connection(url, headers, timeout = 5):
+def check_url_connection(url, headers = None, timeout = 5):
     """Check connection to a given URL."""
     response = requests.get(url, headers = headers, timeout=timeout)
     is_available = response.status_code == 200

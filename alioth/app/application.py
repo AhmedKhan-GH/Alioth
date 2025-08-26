@@ -1,9 +1,10 @@
 import openai
 
-from alioth.core.clients import OpenAIClient
 from alioth.core.connection import *
 from alioth.core.environment import *
-from alioth.core.clients import *
+from alioth.core.base_client import *
+from alioth.providers.ollama_client import OllamaClient
+from alioth.providers.openai_client import *
 
 log = logging.getLogger(__name__)
 
@@ -12,21 +13,12 @@ def run_application():
     """Main Alioth application logic."""
     log.info("Activating Alioth")
 
-    openai_connection_status = check_url_connection('https://api.openai.com/v1/models',
-    {'Authorization': f'Bearer {get_environment_variable("OPENAI_API_KEY", required = True)}'})
+    oai = OpenAIClient()
+    oai.check_connection()
 
-    log.info(f"OpenAI API connection status: {'OK' if openai_connection_status else 'FAILED'}")
-
-    oai_client = openai.OpenAI()
-    oai_adapter = OpenAIClient(client = oai_client, model ='gpt-5')
-    print(answer_prompt(adapter = oai_adapter, prompt = "testing?"))
-
-    ollama_connection_status = check_port_connection('localhost', 11434)
-    log.info(f"Ollama API connection status: {'OK' if ollama_connection_status else 'FAILED'}")
-
-    oll_client = ollama.Client(host = "http://localhost:11434")
-    oll_adapter = OllamaClientAdapter(client = oll_client, model = 'llama2')
-    print(answer_prompt(adapter = oll_adapter, prompt = "testing?"))
-
+    oll = OllamaClient()
+    oll.check_connection()
+    # need to check ollama connection here before creating a client
 
     log.info("Deactivating Alioth")
+
