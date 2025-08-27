@@ -1,4 +1,5 @@
 import unittest
+from abc import ABC
 from unittest.mock import patch, Mock
 from alioth.core.base_client import *
 
@@ -7,6 +8,9 @@ class MockClient(BaseClient):
         pass
 
     def _create_client(self):
+        pass
+
+    def _list_models(self):
         pass
 
 class TestBaseClient(unittest.TestCase):
@@ -50,3 +54,8 @@ class TestBaseClient(unittest.TestCase):
                 self.client._initialize_connection()
                 self.assertNotEqual(self.client._client, "test_client")
                 self.assertFalse(self.client._connected)
+
+    def test_list_models(self):
+        with patch.object(self.client, '_list_models', return_value=["test_model1", "test_model2"]):
+            models = self.client.list_models()
+            self.assertEqual(models, ["test_model1", "test_model2"])

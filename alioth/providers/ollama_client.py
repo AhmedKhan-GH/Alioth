@@ -15,3 +15,6 @@ class OllamaClient(BaseClient):
 
     def _list_models(self) -> list:
         return [m['model'] for m in self._client.list()['models']]
+
+    def _generate_text(self, prompt):
+        return ""

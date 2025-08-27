@@ -8,11 +8,16 @@ def run_application():
     """Main Alioth application logic."""
     log.info("Activating Alioth")
 
-    oai = OpenAIClient()
-    print(oai.list_models())
+    oai = OpenAIClient('gpt-5-nano')
 
-    oll = OllamaClient()
-    print(oll.list_models())
+    oll = OllamaClient('tinyllama:latest')
+
+    clients = [oai, oll]
+    for c in clients:
+        print(c.list_models())
+
+    print(oai.generate_text("hello? give a short response"))
+
 
     log.info("Deactivating Alioth")
 

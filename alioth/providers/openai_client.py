@@ -16,3 +16,15 @@ class OpenAIClient(BaseClient):
 
     def _list_models(self) -> list:
         return [m.id for m in self._client.models.list().data]
+
+    def _generate_text(self, prompt = ""):
+        response = self._client.responses.create(
+            model = self._model,
+            input = [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+        )
+        return response.output_text

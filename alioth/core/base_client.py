@@ -10,9 +10,10 @@ from typing import Any, Optional
 class BaseClient(ABC):
     """Base class for all AI client providers."""
 
-    def __init__(self):
+    def __init__(self, model = None):
         self._client = None
         self._connected = False
+        self._model = model
         self._initialize_connection()
 
     @try_catch(exit_on_error=False, default_return=None)
@@ -29,6 +30,17 @@ class BaseClient(ABC):
     @abstractmethod
     def _create_client(self) -> Any:
         pass
+
+    @try_catch(exit_on_error=False, default_return="")
+    @abstractmethod
+    def _generate_text(self, prompt) -> str:
+        pass
+
+    def generate_text(self, prompt):
+        log.info(f"{self.__class__.__name__} attempting to generate text")
+        result = self._generate_text(prompt)
+        log.info(f"{self.__class__.__name__} generated text with {len(result)} characters")
+        return result
 
     # tested
     @try_catch(exit_on_error=False, default_return = False, catch_exceptions=(Exception, ConnectionError))
@@ -51,4 +63,6 @@ class BaseClient(ABC):
         models = self._list_models()
         log.info(f"{self.__class__.__name__} found {len(models)} models")
         return models
+
+
 
