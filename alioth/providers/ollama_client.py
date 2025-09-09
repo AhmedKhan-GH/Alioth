@@ -1,10 +1,10 @@
-from ..core.base_client import *
+from ..core.modelclient import *
 from ..core.connection import *
 from ..core.environment import *
 
 import ollama
 
-class OllamaClient(BaseClient):
+class OllamaClient(ModelClient):
     """Ollama client provider."""
 
     def _check_connection(self) -> bool:

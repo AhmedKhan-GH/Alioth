@@ -1,10 +1,10 @@
 from openai import OpenAI
 
-from ..core.base_client import *
+from ..core.modelclient import *
 from ..core.connection import *
 from ..core.environment import *
 
-class OpenAIClient(BaseClient):
+class OpenAIClient(ModelClient):
     """OpenAI client provider."""
 
     def _check_connection(self) -> bool:

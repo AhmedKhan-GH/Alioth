@@ -1,9 +1,9 @@
 import unittest
 from abc import ABC
 from unittest.mock import patch, Mock
-from alioth.core.base_client import *
+from alioth.core.modelclient import *
 
-class MockClient(BaseClient):
+class MockClient(ModelClient):
     def _check_connection(self):
         pass
 
@@ -11,6 +11,9 @@ class MockClient(BaseClient):
         pass
 
     def _list_models(self):
+        pass
+
+    def _generate_text(self, prompt) -> str:
         pass
 
 class TestBaseClient(unittest.TestCase):

@@ -7,7 +7,7 @@ log = logging.getLogger(__name__)
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
-class BaseClient(ABC):
+class ModelClient(ABC):
     """Base class for all AI client providers."""
 
     def __init__(self, model = None):
