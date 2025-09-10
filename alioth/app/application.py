@@ -18,6 +18,7 @@ def run_application():
 
     print(oai.generate_text("hello? give a short response"))
 
+    # next objective, create ResponseService
 
     log.info("Deactivating Alioth")
 
