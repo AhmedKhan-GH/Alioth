@@ -12,7 +12,7 @@ class MockModelClient(ModelClient):
         return Mock()
 
     def _list_models(self):
-        return ["model1", "model2",]
+        return ["test_model1", "test_model2"]
 
     def _generate_text(self, prompt) -> str:
         return "generated text"
@@ -37,6 +37,30 @@ class TestModelClientLogging(unittest.TestCase):
         with self.assertLogs("alioth.core.modelclient", level="INFO") as cm:
             client.check_connection()
             self.assertGreater(len(cm.records), 0)
+
+    def test_initialize_connection_logging(self):
+        client = MockModelClient()
+        with self.assertLogs("alioth.core.modelclient", level="INFO") as cm:
+            client._initialize_connection()
+            self.assertGreater(len(cm.records), 0)
+
+class TestModelClientInitialization(unittest.TestCase):
+    def test_initialize_connection_success(self):
+        client = MockModelClient()
+        self.assertTrue(client._connected)
+        self.assertIsNotNone(client._client)
+
+    def test_initialize_connection_failure(self):
+        with patch.object(MockModelClient,'_check_connection', return_value=False):
+            client = MockModelClient()
+            self.assertFalse(client._connected)
+            self.assertIsNone(client._client)
+
+    def test_client_creation_failure(self):
+        with patch.object(MockModelClient,'_create_client', return_value=None):
+            client = MockModelClient()
+            self.assertFalse(client._connected)
+            self.assertIsNone(client._client)
 
 """
 
