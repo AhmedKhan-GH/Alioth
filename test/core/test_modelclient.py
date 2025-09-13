@@ -5,6 +5,7 @@ from unittest.mock import patch, Mock
 from alioth.core.modelclient import *
 
 class MockModelClient(ModelClient):
+
     def _check_connection(self):
         return True
 
@@ -27,87 +28,94 @@ class TestModelClientLogging(unittest.TestCase):
             self.assertGreater(len(cm.records), 0)
 
     def test_list_models_logging(self):
-        client = MockModelClient()
+        client = MockModelClient(model = "test_model1")
         with self.assertLogs("alioth.core.modelclient", level="INFO") as cm:
             client.list_models()
             self.assertGreater(len(cm.records), 0)
 
     def test_check_connection_logging(self):
-        client = MockModelClient()
+        client = MockModelClient(model = "test_model1")
         with self.assertLogs("alioth.core.modelclient", level="INFO") as cm:
             client.check_connection()
             self.assertGreater(len(cm.records), 0)
 
     def test_initialize_connection_logging(self):
-        client = MockModelClient()
+        client = MockModelClient(model = "test_model1")
         with self.assertLogs("alioth.core.modelclient", level="INFO") as cm:
             client._initialize_connection()
             self.assertGreater(len(cm.records), 0)
 
 class TestModelClientInitialization(unittest.TestCase):
     def test_initialize_connection_success(self):
-        client = MockModelClient()
+        client = MockModelClient(model = "test_model1")
         self.assertTrue(client._connected)
         self.assertIsNotNone(client._client)
 
     def test_initialize_connection_failure(self):
         with patch.object(MockModelClient,'_check_connection', return_value=False):
-            client = MockModelClient()
+            client = MockModelClient(model = "test_model1")
             self.assertFalse(client._connected)
             self.assertIsNone(client._client)
 
     def test_client_creation_failure(self):
         with patch.object(MockModelClient,'_create_client', return_value=None):
-            client = MockModelClient()
+            client = MockModelClient(model = "test_model1")
             self.assertFalse(client._connected)
             self.assertIsNone(client._client)
 
-"""
+class TestModelClientGenerateText(unittest.TestCase):
+    def test_generate_text_success(self):
+        client = MockModelClient(model = "test_model1")
+        result = client.generate_text("test prompt")
+        self.assertEqual(result, "generated text")
 
-    def test_initialize_connection_success(self):
-        with patch.object(self.client, '_check_connection', return_value=True):
-            with patch.object(self.client, '_create_client', return_value="test_client"):
-                self.client._initialize_connection()
-                self.assertEqual(self.client._client, "test_client")
-                self.assertTrue(self.client._connected)
+    def test_generate_text_no_model(self):
+        client = MockModelClient(model = "")
+        result = client.generate_text("test prompt")
+        self.assertEqual(result, "")
 
-    def test_initialize_connection_failure(self):
-        with patch.object(self.client, '_check_connection', return_value=False):
-            with patch.object(self.client, '_create_client', return_value=None):
-                self.client._initialize_connection()
-                self.assertNotEqual(self.client._client, "test_client")
-                self.assertFalse(self.client._connected)
+    def test_generate_text_failure(self):
+        with patch.object(MockModelClient,'_generate_text', return_value=""):
+            client = MockModelClient(model = "test_model1")
+            result = client.generate_text("test prompt")
+            self.assertEqual(result, "")
 
-    def test_list_models_populated(self):
-        with patch.object(self.client, '_list_models', return_value=["test_model1", "test_model2"]):
-            models = self.client.list_models()
-            self.assertEqual(models, ["test_model1", "test_model2"])
+    def test_generate_text_missing_model(self):
+        client = MockModelClient(model = "missing_model")
+        result = client.generate_text("test prompt")
+        self.assertEqual(result, "")
 
-    def test_list_models_empty(self):
-        with patch.object(self.client, '_list_models', return_value=[]):
-            self.assertEqual(self.client.list_models(), [])
+    def test_generate_text_missing_prompt(self):
+        client = MockModelClient(model = "test_model1")
+        result = client.generate_text("")
+        self.assertEqual(result, "")
 
-    def test_create_client_success(self):
-        Test successful client creation during initialization
-        mock_client_object = Mock()  # Create a mock client object
 
-        with patch.object(self.client, '_check_connection', return_value=True):
-            with patch.object(self.client, '_create_client', return_value=mock_client_object):
-                # Call the method that actually uses _create_client
-                self.client._initialize_connection()
+class TestModelClientListModels(unittest.TestCase):
+    def test_list_models_success(self):
+        client = MockModelClient(model = "test_model1")
+        result = client.list_models()
+        self.assertEqual(result, ["test_model1", "test_model2"])
 
-                # Verify the client was properly set and connected
-                self.assertEqual(self.client._client, mock_client_object)
-                self.assertTrue(self.client._connected)
+    def test_list_models_no_model(self):
+        with patch.object(MockModelClient,'_list_models', return_value=[]):
+            client = MockModelClient(model = "test_model1")
+            result = client.list_models()
+            self.assertEqual(result, [])
 
-    def test_create_client_failure(self):
-        Test client creation failure (returns None) during initialization
-        with patch.object(self.client, '_check_connection', return_value=True):
-            with patch.object(self.client, '_create_client', return_value=None):
-                # This should fail because _create_client returns None
-                self.client._initialize_connection()
+class TestModelClientHealthCheck(unittest.TestCase):
+    def test_health_check_success(self):
+        client = MockModelClient(model = "test_model1")
+        client._health_check()
 
-                # Verify the client was NOT set and connection failed
-                self.assertIsNone(self.client._client)
-                self.assertFalse(self.client._connected)
-    """
+    def test_health_check_connection_failure(self):
+        with patch.object(MockModelClient,'_check_connection', return_value=False):
+            client = MockModelClient(model = "test_model1")
+            with self.assertRaises(ConnectionError):
+                client._health_check()
+
+    def test_health_check_client_failure(self):
+        with patch.object(MockModelClient,'_create_client', return_value=None):
+            client = MockModelClient(model = "test_model1")
+            with self.assertRaises(ConnectionError):
+                client._health_check()
