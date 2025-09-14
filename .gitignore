@@ -1,4 +1,4 @@
 .env
 .idea
 app.log
-UNKNOWN.egg-info
+UNKNOWN.egg-info/
