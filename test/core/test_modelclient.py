@@ -14,7 +14,11 @@ class MockModelClient(ModelClient):
     def _list_models(self):
         return ["test_model1", "test_model2"]
 
-    def _generate_text(self, prompt) -> str:
+    def _generate_text(self, prompt: str = "", schema: Type[Optional[BaseModel]] = None) -> Union[BaseModel, str]:
+        class Test(BaseModel):
+            test_field: str
+        if schema:
+            return Test(test_field = "test_value")
         return "generated text"
 
 class TestModelClientLogging(unittest.TestCase):
@@ -82,6 +86,17 @@ class TestModelClientGenerateText(unittest.TestCase):
         client = MockModelClient(model = "test_model1")
         result = client.generate_text("")
         self.assertEqual(result, "")
+
+    def test_generate_text_structured(self):
+
+        class Test(BaseModel):
+            test_field: str
+
+        client = MockModelClient(model = "test_model1")
+        result = client.generate_text("test prompt", schema = Test)
+
+        self.assertIsInstance(result.test_field, str)
+
 
 class TestModelClientListModels(unittest.TestCase):
     def test_list_models_success(self):

@@ -2,6 +2,7 @@ from ..core.modelclient import *
 from ..core.connection import *
 from ..core.environment import *
 
+
 from ollama import Client
 
 class OllamaModelClient(ModelClient):
@@ -16,13 +17,17 @@ class OllamaModelClient(ModelClient):
     def _list_models(self) -> list:
         return [m['model'] for m in self._client.list()['models']]
 
-    def _generate_text(self, prompt: str):
+    def _generate_text(self, prompt: str = "", schema: Optional[Type[BaseModel]] = None):
         response = self._client.chat(
             model = self._model,
-            messages = [
-                {
+            messages =
+                [{
                     'role': 'user',
                     'content': prompt
-                }
-            ])
-        return response['message']['content']
+                }],
+            format = schema.model_json_schema() if schema else None
+            )
+        content = response['message']['content']
+        if schema:
+            return schema.model_validate_json(content)
+        return content

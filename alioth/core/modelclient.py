@@ -5,7 +5,8 @@ from alioth.core.decorators import try_catch
 
 log = logging.getLogger(__name__)
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any, Optional, Union, Type
+from pydantic import BaseModel
 
 class ModelClient(ABC):
     """Base class for all AI client providers."""
@@ -38,8 +39,9 @@ class ModelClient(ABC):
 
     @try_catch(exit_on_error=False, default_return="")
     @abstractmethod
-    def _generate_text(self, prompt) -> str:
+    def _generate_text(self, prompt: str = "", schema: Optional[Type[BaseModel]] = None) -> str:
         pass
+
 
     # logging tested
     # success and failure tested
@@ -90,7 +92,7 @@ class ModelClient(ABC):
     # logging tested
     # success and failure tested
     @try_catch(exit_on_error=False, default_return="", catch_exceptions=(ValueError, ConnectionError))
-    def generate_text(self, prompt: str = "") -> str:
+    def generate_text(self, prompt: str = "", schema: Optional[Type[BaseModel]] = None) -> Union[str, BaseModel]:
         self._system_check()
         self._model_check()
 
@@ -98,8 +100,8 @@ class ModelClient(ABC):
             raise ValueError(f"{self.__class__.__name__} prompt is missing")
 
         log.info(f"{self.__class__.__name__} attempting to generate text")
-        result = self._generate_text(prompt)
-        log.info(f"{self.__class__.__name__} generated text with {len(result)} characters")
+        result = self._generate_text(prompt, schema)
+        log.info(f"{self.__class__.__name__} generated text: {len(str(result))}")
         return result
 
     # logging tested
