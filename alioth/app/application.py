@@ -18,8 +18,8 @@ def run_application():
     oai.list_models()
 
     # we can specify the model it uses at runtime
-    oll.set_model("llama3.2:3b")
-    oai.set_model("gpt-5-nano")
+    oll.set_language_model("llama3.2:3b")
+    oai.set_language_model("gpt-5-nano")
 
     class Country(BaseModel):
         capitol: str

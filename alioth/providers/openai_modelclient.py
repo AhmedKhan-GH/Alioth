@@ -23,14 +23,14 @@ class OpenAIModelClient(ModelClient):
 
         if schema:
             response = self._client.responses.parse(
-                model=self._model,
+                model=self._language_model,
                 input=messages,
                 text_format=schema
             )
             return response.output_parsed
         else:
             response = self._client.responses.create(
-                model=self._model,
+                model=self._language_model,
                 input=messages,
             )
             return response.output_text

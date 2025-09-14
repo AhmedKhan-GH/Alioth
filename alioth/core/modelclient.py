@@ -11,11 +11,15 @@ from pydantic import BaseModel
 class ModelClient(ABC):
     """Base class for all AI client providers."""
 
-    def __init__(self, model: str = ""):        # we initialize our initial state
-        self._model = model
+    def __init__(self,
+                 language_model: Optional[str] = None,
+                 embedding_model: Optional[str] = None):        # we initialize our initial state
+        self._language_model = language_model
+        self._embedding_model = embedding_model
 
         self._client = None
         self._connected = False
+
         self._model_list = []
 
         # we attempt to change our state
@@ -40,8 +44,10 @@ class ModelClient(ABC):
 
     @try_catch(exit_on_error=False, default_return="")
     @abstractmethod
-    def _generate_text(self, prompt: str = "", system="",
-                       schema: Optional[Type[BaseModel]] = None) -> Union[str, BaseModel]:
+    def _generate_text(self,
+                       prompt: str = "", system="",
+                       schema: Optional[Type[BaseModel]] = None
+                       ) -> Union[str, BaseModel]:
         pass
 
 
@@ -49,24 +55,29 @@ class ModelClient(ABC):
     # success and failure tested
     @try_catch(exit_on_error=False, default_return = False, catch_exceptions=ConnectionError)
     def _initialize_connection(self) -> Any:
-        # if connection does not return false we can create a client
-        if not self._check_connection():
+
+        # connection check guard clause
+        if self._check_connection():
+            log.info(f"{self.__class__.__name__} connection check successful")
+        else:
             raise ConnectionError(f"{self.__class__.__name__} connection check failed")
+
         self._client = self._create_client()
-        log.info(f"{self.__class__.__name__} connection check successful")
-        # if connection fails then we never set _client away from None
 
         # if client does not return null object we are connected
-        if self._client is None:
+        if self._client:
+            log.info(f"{self.__class__.__name__} client creation successful")
+        else:
             raise ConnectionError(f"{self.__class__.__name__} client creation failed")
-        self._connected = True
-        log.info(f"{self.__class__.__name__} client creation successful")
 
+        self._connected = True
+
+        # given we have created a client and connected we can capture a model list
         self._model_list = self._list_models()
-        # if client creation fails then we never set _connected = true
 
         # if all code is successful then only do we change our state to
-        # _connected = True and _client = a client object
+        # _connected = True and _client = a client object and they are
+        # tightly coupled
 
 # == ABSTRACTED INTERFACE ==
 
@@ -79,21 +90,33 @@ class ModelClient(ABC):
         return result
 
     @try_catch(exit_on_error=False, default_return=None, catch_exceptions=(ConnectionError, ValueError))
-    def set_model(self, new_model: str = ""):
+    def set_language_model(self, new_model: str = ""):
         self._system_check()
         self._model_check(new_model)
 
-        if self._model == new_model:
-            log.info(f"{self.__class__.__name__} model is already set to {self._model}")
+        if self._language_model == new_model:
+            log.info(f"{self.__class__.__name__} language model is already set to {self._language_model}")
 
-        log.info(f"{self.__class__.__name__} setting model to {new_model}")
-        self._model = new_model
-        log.info(f"{self.__class__.__name__} model set to {new_model}")
+        log.info(f"{self.__class__.__name__} setting language model to {new_model}")
+        self._language_model = new_model
+        log.info(f"{self.__class__.__name__} language model set to {new_model}")
+
+    @try_catch(exit_on_error=False, default_return=None, catch_exceptions=(ConnectionError, ValueError))
+    def set_embedding_model(self, new_model: str = ""):
+        self._system_check()
+        self._model_check(new_model)
+
+        if self._embedding_model == new_model:
+            log.info(f"{self.__class__.__name__} embedding model is already set to {self._language_model}")
+
+        log.info(f"{self.__class__.__name__} setting embedding model to {new_model}")
+        self._embedding_model = new_model
+        log.info(f"{self.__class__.__name__} embedding model set to {new_model}")
 
     # logging tested
     # success and failure tested
     @try_catch(exit_on_error=False, default_return="", catch_exceptions=(ValueError, ConnectionError))
-    def generate_text(self, prompt: str = "", system="",
+    def generate_text(self, prompt: str = "", system = "",
                       schema: Optional[Type[BaseModel]] = None) -> Union[str, BaseModel]:
         self._system_check()
         self._model_check()
@@ -101,9 +124,10 @@ class ModelClient(ABC):
         if prompt == "":
             raise ValueError(f"{self.__class__.__name__} prompt is missing")
 
-        log.info(f"{self.__class__.__name__} attempting to generate text")
-        result = self._generate_text(prompt, system, schema=schema)
-        log.info(f"{self.__class__.__name__} generated text: {len(str(result))}")
+        log.info(f"{self.__class__.__name__} attempting to generate {"structured" if schema else "simple"} text")
+        result = self._generate_text(prompt=prompt, system=system, schema=schema)
+        log.info(f"{self.__class__.__name__} generated {"structured" if schema else "simple"} text "
+                 f"{len(str(result))} characters long")
         return result
 
     # logging tested
@@ -126,18 +150,18 @@ class ModelClient(ABC):
         return None
 
     # functionality tested
-    def _model_check(self, model: str = None):
+    def _model_check(self, model: Optional[str] = None):
         # method defaults to internal check if not given an external specification
         if model is None:
-            model = self._model
+            model = self._language_model
 
         if model == "":
             raise ValueError(f"{self.__class__.__name__} model is not set")
-        #log.info(f"{self.__class__.__name__} model is set to {self._model}")
+        #log.info(f"{self.__class__.__name__} model is set to {self._language_model}")
 
         #log.info(f"{self.__class__.__name__} checking model {model} is available")
         if model not in self._model_list:
-            raise ValueError(f"{self.__class__.__name__} model {self._model} not available")
+            raise ValueError(f"{self.__class__.__name__} model {self._language_model} not available")
         #log.info(f"{self.__class__.__name__} model {self._model} is available")
         return
 

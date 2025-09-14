@@ -22,7 +22,7 @@ class OllamaModelClient(ModelClient):
         messages.append({"role": "user", "content": prompt})
 
         response = self._client.chat(
-            model = self._model,
+            model = self._language_model,
             messages = messages,
             format = schema.model_json_schema() if schema else None
             )
