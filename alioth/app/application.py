@@ -1,5 +1,5 @@
-from alioth.providers.ollama_client import OllamaClient
-from alioth.providers.openai_client import *
+from alioth.providers.ollama_modelclient import *
+from alioth.providers.openai_modelclient import *
 
 log = logging.getLogger(__name__)
 
@@ -8,15 +8,14 @@ def run_application():
     """Main Alioth application logic."""
     log.info("Activating Alioth")
 
-    oai = OpenAIClient('gpt-5-nano')
+    oai = OpenAIModelClient('gpt-5-nano')
 
-    oll = OllamaClient('tinyllama:latest')
+    oll = OllamaModelClient('llama3.2:3b')
 
     clients = [oai, oll]
     for c in clients:
         print(c.list_models())
-
-    print(oai.generate_text("hello? give a short response"))
+        print(c.generate_text("hello? give a short response"))
 
     # next objective, create ResponseService
 

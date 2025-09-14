@@ -5,7 +5,6 @@ from unittest.mock import patch, Mock
 from alioth.core.modelclient import *
 
 class MockModelClient(ModelClient):
-
     def _check_connection(self):
         return True
 
@@ -74,12 +73,6 @@ class TestModelClientGenerateText(unittest.TestCase):
         result = client.generate_text("test prompt")
         self.assertEqual(result, "")
 
-    def test_generate_text_failure(self):
-        with patch.object(MockModelClient,'_generate_text', return_value=""):
-            client = MockModelClient(model = "test_model1")
-            result = client.generate_text("test prompt")
-            self.assertEqual(result, "")
-
     def test_generate_text_missing_model(self):
         client = MockModelClient(model = "missing_model")
         result = client.generate_text("test prompt")
@@ -89,7 +82,6 @@ class TestModelClientGenerateText(unittest.TestCase):
         client = MockModelClient(model = "test_model1")
         result = client.generate_text("")
         self.assertEqual(result, "")
-
 
 class TestModelClientListModels(unittest.TestCase):
     def test_list_models_success(self):
@@ -104,18 +96,55 @@ class TestModelClientListModels(unittest.TestCase):
             self.assertEqual(result, [])
 
 class TestModelClientHealthCheck(unittest.TestCase):
-    def test_health_check_success(self):
+    def test_system_check_success(self):
         client = MockModelClient(model = "test_model1")
-        client._health_check()
+        client._system_check()
 
-    def test_health_check_connection_failure(self):
+    def test_system_check_connection_failure(self):
         with patch.object(MockModelClient,'_check_connection', return_value=False):
             client = MockModelClient(model = "test_model1")
             with self.assertRaises(ConnectionError):
-                client._health_check()
+                client._system_check()
 
-    def test_health_check_client_failure(self):
+    def test_system_check_client_failure(self):
         with patch.object(MockModelClient,'_create_client', return_value=None):
             client = MockModelClient(model = "test_model1")
             with self.assertRaises(ConnectionError):
-                client._health_check()
+                client._system_check()
+
+class TestModelClientModelCheck(unittest.TestCase):
+    def test_model_check_success(self):
+        client = MockModelClient(model = "test_model1")
+        client._model_check()
+
+    def test_model_check_missing_model(self):
+        client = MockModelClient(model = "missing_model")
+        with self.assertRaises(ValueError):
+            client._model_check()
+
+    def test_model_check_no_model(self):
+        client = MockModelClient()
+        with self.assertRaises(ValueError):
+            client._model_check()
+
+class TestModelClientSetModel(unittest.TestCase):
+    def test_set_model_success(self):
+        client = MockModelClient(model = "test_model1")
+        client.set_model("test_model2")
+        self.assertEqual(client._model, "test_model2")
+
+    def test_set_model_no_model(self):
+        client = MockModelClient(model = "test_model1")
+        client.set_model("")
+        self.assertEqual(client._model, "test_model1")
+
+    def test_set_model_missing_model(self):
+        client = MockModelClient(model = "test_model1")
+        client.set_model("missing_model")
+        self.assertEqual(client._model, "test_model1")
+
+    def test_set_model_same_model(self):
+        client = MockModelClient(model = "test_model1")
+        client.set_model("test_model1")
+        self.assertEqual(client._model, "test_model1")
+

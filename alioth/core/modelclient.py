@@ -11,13 +11,15 @@ class ModelClient(ABC):
     """Base class for all AI client providers."""
 
     def __init__(self, model: str = ""):        # we initialize our initial state
-        self.model = model
+        self._model = model
 
         self._client = None
         self._connected = False
 
         # we attempt to change our state
         self._initialize_connection()
+
+# == ABSTRACT METHODS ==
 
     @try_catch(exit_on_error=False, default_return=False)
     @abstractmethod
@@ -60,47 +62,37 @@ class ModelClient(ABC):
         # if all code is successful then only do we change our state to
         # _connected = True and _client = a client object
 
+# == ABSTRACTED INTERFACE ==
+
     # logging tested
+    @try_catch(exit_on_error=False, default_return=False, catch_exceptions=ConnectionError)
     def check_connection(self) -> bool:
         log.info(f"{self.__class__.__name__} connection check started")
         result = self._check_connection()
         log.info(f"{self.__class__.__name__} connection check completed: {'OK' if result else 'FAILED'}")
         return result
 
-    def _health_check(self):
-        if not self._connected:
-            raise ConnectionError(f"{self.__class__.__name__} is not connected")
-        if self._client is None:
-            return ConnectionError(f"{self.__class__.__name__} client is not initialized")
-        return None
+    @try_catch(exit_on_error=False, default_return=None, catch_exceptions=(ConnectionError, ValueError))
+    def set_model(self, new_model: str = ""):
+        self._system_check()
+        self._model_check(new_model)
 
-    @try_catch(exit_on_error=False, default_return=False, catch_exceptions=(ConnectionError, ValueError))
-    def set_model(self, model: str = "") -> bool:
-        self._health_check()
+        if self._model == new_model:
+            log.info(f"{self.__class__.__name__} model is already set to {self._model}")
 
-        if model == "":
-            raise ValueError(f"{self.__class__.__name__} model is empty")
-        if self.model == model:
-            log.info(f"{self.__class__.__name__} model is already set to {model}")
-            return True
-        log.info(f"{self.__class__.__name__} setting model to {model}")
-        if model not in self.list_models():
-            raise ValueError(f"{self.__class__.__name__} model {model} not available")
+        if new_model not in self.list_models():
+            log.info(f"{self.__class__.__name__} model {new_model} not available")
 
-        self.model = model
-        log.info(f"{self.__class__.__name__} model set to {model}")
-        return True
+        log.info(f"{self.__class__.__name__} setting model to {new_model}")
+        self._model = new_model
+        log.info(f"{self.__class__.__name__} model set to {new_model}")
 
     # logging tested
     # success and failure tested
     @try_catch(exit_on_error=False, default_return="", catch_exceptions=(ValueError, ConnectionError))
     def generate_text(self, prompt: str = "") -> str:
-        self._health_check()
-
-        if self.model == "":
-            raise ValueError(f"{self.__class__.__name__} model is not set")
-        if self.model not in self.list_models():
-            raise ValueError(f"{self.__class__.__name__} model is not available: {self.model}")
+        self._system_check()
+        self._model_check()
 
         if prompt == "":
             raise ValueError(f"{self.__class__.__name__} prompt is missing")
@@ -117,5 +109,23 @@ class ModelClient(ABC):
         log.info(f"{self.__class__.__name__} found {len(models)} models")
         return models
 
+# === INTERNAL HELPER FUNCTIONS ==
 
+    # functionality tested
+    def _system_check(self):
+        if not self._connected:
+            raise ConnectionError(f"{self.__class__.__name__} is not connected")
+        if self._client is None:
+            return ConnectionError(f"{self.__class__.__name__} client is not initialized")
+        return None
+
+    # functionality tested
+    def _model_check(self, model: str = None):
+        if model is None:
+            model = self._model
+        if model == "":
+            raise ValueError(f"{self.__class__.__name__} model is not set")
+        if model not in self.list_models():
+            raise ValueError(f"{self.__class__.__name__} model {self._model} not available")
+        return
 

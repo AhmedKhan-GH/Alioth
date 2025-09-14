@@ -4,7 +4,7 @@ from ..core.modelclient import *
 from ..core.connection import *
 from ..core.environment import *
 
-class OpenAIClient(ModelClient):
+class OpenAIModelClient(ModelClient):
     """OpenAI client provider."""
 
     def _check_connection(self) -> bool:
