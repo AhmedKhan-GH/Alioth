@@ -17,17 +17,20 @@ class OpenAIModelClient(ModelClient):
     def _list_models(self) -> list:
         return [m.id for m in self._client.models.list().data]
 
-    def _generate_text(self, prompt: str = "", schema: Optional[Type[BaseModel]] = None):
+    def _generate_text(self, prompt: str = "", system="", schema: Optional[Type[BaseModel]] = None):
+        messages = [{"role": "developer", "content": system}] if system else []
+        messages.append({"role": "user", "content": prompt})
+
         if schema:
             response = self._client.responses.parse(
                 model=self._model,
-                input=[{"role": "user", "content": prompt}],
+                input=messages,
                 text_format=schema
             )
             return response.output_parsed
         else:
             response = self._client.responses.create(
                 model=self._model,
-                input=[{"role": "user", "content": prompt}],
+                input=messages,
             )
             return response.output_text

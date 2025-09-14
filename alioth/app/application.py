@@ -28,8 +28,10 @@ def run_application():
     for c in [oll, oai]:
         # we can interchangeably operate on different model providers and query either
         # with string prompts or pydantic schema structured outputs?
-        print(c.generate_text("Briefly answer what is the largest state in America?"))
-        print(c.generate_text("Answer about the United States of America", Country))
+        print(c.generate_text(
+            prompt = "Briefly answer what is the largest state in America?",
+            system = "You are an astute scholar that provides research-level answers to questions."))
+        print(c.generate_text(prompt = "Answer about the United States of America", schema=Country))
 
     # next objective, create ResponseService, what does it need to achieve?
 

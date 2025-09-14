@@ -40,7 +40,8 @@ class ModelClient(ABC):
 
     @try_catch(exit_on_error=False, default_return="")
     @abstractmethod
-    def _generate_text(self, prompt: str = "", schema: Optional[Type[BaseModel]] = None) -> str:
+    def _generate_text(self, prompt: str = "", system="",
+                       schema: Optional[Type[BaseModel]] = None) -> Union[str, BaseModel]:
         pass
 
 
@@ -92,7 +93,8 @@ class ModelClient(ABC):
     # logging tested
     # success and failure tested
     @try_catch(exit_on_error=False, default_return="", catch_exceptions=(ValueError, ConnectionError))
-    def generate_text(self, prompt: str = "", schema: Optional[Type[BaseModel]] = None) -> Union[str, BaseModel]:
+    def generate_text(self, prompt: str = "", system="",
+                      schema: Optional[Type[BaseModel]] = None) -> Union[str, BaseModel]:
         self._system_check()
         self._model_check()
 
@@ -100,7 +102,7 @@ class ModelClient(ABC):
             raise ValueError(f"{self.__class__.__name__} prompt is missing")
 
         log.info(f"{self.__class__.__name__} attempting to generate text")
-        result = self._generate_text(prompt, schema)
+        result = self._generate_text(prompt, system, schema=schema)
         log.info(f"{self.__class__.__name__} generated text: {len(str(result))}")
         return result
 
