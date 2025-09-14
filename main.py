@@ -6,14 +6,14 @@ from dotenv import load_dotenv
 import logging
 import sys
 
-from alioth.app.alioth import run_application
+from alioth.app.application import run_application
 from alioth.core.bootstrap import setup_logging
 from alioth.core.decorators import try_catch
 import alioth.core.environment as env
 
 log = logging.getLogger(__name__)
 
-setup_logging(level=logging.DEBUG,
+setup_logging(level=logging.INFO,
               handlers=[logging.FileHandler('app.log', mode='w'),
                         logging.StreamHandler(sys.stdout)])
 
