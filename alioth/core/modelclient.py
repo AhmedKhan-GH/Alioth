@@ -16,6 +16,7 @@ class ModelClient(ABC):
 
         self._client = None
         self._connected = False
+        self._model_list = []
 
         # we attempt to change our state
         self._initialize_connection()
@@ -59,6 +60,8 @@ class ModelClient(ABC):
             raise ConnectionError(f"{self.__class__.__name__} client creation failed")
         self._connected = True
         log.info(f"{self.__class__.__name__} client creation successful")
+
+        self._model_list = self._list_models()
         # if client creation fails then we never set _connected = true
 
         # if all code is successful then only do we change our state to
@@ -81,9 +84,6 @@ class ModelClient(ABC):
 
         if self._model == new_model:
             log.info(f"{self.__class__.__name__} model is already set to {self._model}")
-
-        if new_model not in self.list_models():
-            log.info(f"{self.__class__.__name__} model {new_model} not available")
 
         log.info(f"{self.__class__.__name__} setting model to {new_model}")
         self._model = new_model
@@ -117,17 +117,25 @@ class ModelClient(ABC):
     def _system_check(self):
         if not self._connected:
             raise ConnectionError(f"{self.__class__.__name__} is not connected")
+        #log.info(f"{self.__class__.__name__} is connected")
         if self._client is None:
             return ConnectionError(f"{self.__class__.__name__} client is not initialized")
+        #log.info(f"{self.__class__.__name__} client is initialized")
         return None
 
     # functionality tested
     def _model_check(self, model: str = None):
+        # method defaults to internal check if not given an external specification
         if model is None:
             model = self._model
+
         if model == "":
             raise ValueError(f"{self.__class__.__name__} model is not set")
-        if model not in self.list_models():
+        #log.info(f"{self.__class__.__name__} model is set to {self._model}")
+
+        #log.info(f"{self.__class__.__name__} checking model {model} is available")
+        if model not in self._model_list:
             raise ValueError(f"{self.__class__.__name__} model {self._model} not available")
+        #log.info(f"{self.__class__.__name__} model {self._model} is available")
         return
 

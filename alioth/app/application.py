@@ -8,18 +8,30 @@ def run_application():
     """Main Alioth application logic."""
     log.info("Activating Alioth")
 
-    oll = OllamaModelClient('llama3.2:3b')
-    oai = OpenAIModelClient('gpt-5-nano')
+    # we can create provider model clients
+    # that can be used interchangeably
+    oll = OllamaModelClient()
+    oai = OpenAIModelClient()
+
+    # we can observe the models available
+    oll.list_models()
+    oai.list_models()
+
+    # we can specify the model it uses at runtime
+    oll.set_model("llama3.2:3b")
+    oai.set_model("gpt-5-nano")
+
+    class Country(BaseModel):
+        capitol: str
+        population: int
 
     for c in [oll, oai]:
-        print(c.list_models())
-        print(c.generate_text("hello? give a short response"))
-        class Country(BaseModel):
-            capitol: str
-            population: int
+        # we can interchangeably operate on different model providers and query either
+        # with string prompts or pydantic schema structured outputs?
+        print(c.generate_text("Briefly answer what is the largest state in America?"))
         print(c.generate_text("Answer about the United States of America", Country))
 
-    # next objective, create ResponseService
+    # next objective, create ResponseService, what does it need to achieve?
 
     log.info("Deactivating Alioth")
 
