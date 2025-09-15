@@ -94,43 +94,11 @@ class ModelClient(ABC):
 
 # == ABSTRACTED INTERFACE ==
 
-    # logging tested
-    @try_catch(exit_on_error=False, default_return=False, catch_exceptions=ConnectionError)
     def check_connection(self) -> bool:
         log.info(f"{self.__class__.__name__} connection check started")
         result = self._check_connection()
         log.info(f"{self.__class__.__name__} connection check completed: {'OK' if result else 'FAILED'}")
         return result
-
-    def _model_check(self, model: Optional[str] = None):
-
-        # if given no parameter default to internal parameter
-
-        if model is None:
-            model = self._language_model
-
-        if model is None or model == "":
-            raise ValueError(f"{self.__class__.__name__} model is missing")
-        # if it is still empty string or none then we raise an error
-
-        if model not in self._model_list:
-            raise ValueError(f"{self.__class__.__name__} model {model} not available")
-        # if we have specified a model that is missing also raise an error
-
-    def _set_model(self, candidate: Optional[str] = None,
-                   type: ModelType = None):
-
-        if type is None:
-            raise ValueError(f"{self.__class__.__name__} model type is missing")
-        if type not in ModelType:
-            raise ValueError(f"{self.__class__.__name__} model type {type} not supported")
-
-        self._model_check(candidate)
-
-        if type == ModelType.EMBEDDING:
-            self._embedding_model = candidate
-        elif type == ModelType.LANGUAGE:
-            self._language_model = candidate
 
     @try_catch(exit_on_error=False, default_return=None, catch_exceptions=ValueError)
     def set_embedding_model(self, embedding_model: Optional[str] = None):
@@ -152,7 +120,7 @@ class ModelClient(ABC):
                       schema: Optional[Type[BaseModel]] = None) -> Union[str, BaseModel]:
 
         self._system_check()
-        self._model_check()
+        self._check_language_model()
 
         if prompt == "":
             raise ValueError(f"{self.__class__.__name__} prompt is missing")
@@ -161,6 +129,19 @@ class ModelClient(ABC):
         result = self._generate_text(prompt=prompt, system=system, schema=schema)
         log.info(f"{self.__class__.__name__} generated {"structured" if schema else "simple"} text "
                  f"{len(str(result))} characters long")
+        return result
+
+    @try_catch(exit_on_error=False, default_return=[], catch_exceptions=(ValueError, ConnectionError))
+    def embed_text(self, text: str) -> list:
+        self._system_check()
+        self._check_embedding_model()
+
+        if text == "":
+            raise ValueError(f"{self.__class__.__name__} text is missing")
+
+        log.info(f"{self.__class__.__name__} attempting to embed text")
+        result = self._embed_text(prompt=text)
+        log.info(f"{self.__class__.__name__} embedded text in {len(result)} dimensions")
         return result
 
     # logging tested
@@ -182,3 +163,50 @@ class ModelClient(ABC):
         #log.info(f"{self.__class__.__name__} client is initialized")
         return None
 
+    def _type_check(self, type: ModelType):
+        if type is None:
+            raise ValueError(f"{self.__class__.__name__} model type is missing")
+        if type not in ModelType:
+            raise ValueError(f"{self.__class__.__name__} model type {type} not supported")
+
+    def _model_check(self, model: Optional[str] = None,
+                     type: Optional[ModelType] = None):
+
+        self._type_check(type)
+        # if given no parameter default to internal parameter
+
+        if model is None:
+            if type == ModelType.EMBEDDING:
+                model = self._embedding_model
+            elif type == ModelType.LANGUAGE:
+                model = self._language_model
+
+        if model is None or model == "":
+            raise ValueError(f"{self.__class__.__name__} model is missing")
+        # if it is still empty string or none then we raise an error
+
+        if model not in self._model_list:
+            raise ValueError(f"{self.__class__.__name__} model {model} not available")
+        # if we have specified a model that is missing also raise an error
+
+    def _set_model(self, candidate: Optional[str] = None,
+                   type: ModelType = None):
+
+        self._type_check(type)
+
+        self._model_check(model = candidate, type = type)
+
+        if type == ModelType.EMBEDDING:
+            self._embedding_model = candidate
+        elif type == ModelType.LANGUAGE:
+            self._language_model = candidate
+
+    def _check_embedding_model(self, embedding_model: Optional[str] = None):
+        log.info(f"{self.__class__.__name__} checking embedding model {embedding_model}")
+        self._model_check(embedding_model, ModelType.EMBEDDING)
+        log.info(f"{self.__class__.__name__} embedding model {embedding_model} is available")
+
+    def _check_language_model(self, language_model: Optional[str] = None):
+        log.info(f"{self.__class__.__name__} checking language model {language_model}")
+        self._model_check(language_model, ModelType.LANGUAGE)
+        log.info(f"{self.__class__.__name__} language model {language_model} is available")

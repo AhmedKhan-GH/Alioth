@@ -15,7 +15,7 @@ class MockModelClient(ModelClient):
         return ["test_model1", "test_model2"]
 
     def _embed_text(self, prompt: str) -> list[float]:
-        return []
+        return [1.1]
 
     def _generate_text(self,
                        prompt: str = "", system = "",
@@ -144,14 +144,23 @@ class TestModelClientHealthCheck(unittest.TestCase):
                 client._system_check()
 
 class TestModelClientModelCheck(unittest.TestCase):
-    def test_model_check_success(self):
+    def test_model_check_language_model_success(self):
         client = MockModelClient(language_model = "test_model1")
-        client._model_check()
+        client._model_check(type = ModelType.LANGUAGE)
 
-    def test_model_check_missing_model(self):
+    def test_model_check_missing_language_model(self):
         client = MockModelClient(language_model = "missing_model")
         with self.assertRaises(ValueError):
-            client._model_check()
+            client._model_check(type = ModelType.LANGUAGE)
+
+    def test_model_check_missing_embedding_model(self):
+        client = MockModelClient(embedding_model = "missing_model")
+        with self.assertRaises(ValueError):
+            client._model_check(type = ModelType.EMBEDDING)
+
+    def test_model_check_embedding_model_success(self):
+        client = MockModelClient(embedding_model = "test_model1")
+        client._model_check(type = ModelType.EMBEDDING)
 
     def test_model_check_no_model(self):
         client = MockModelClient()
@@ -199,4 +208,25 @@ class TestModelClientSetEmbeddingModel(unittest.TestCase):
         client = MockModelClient(embedding_model = "test_model1")
         client.set_embedding_model("test_model1")
         self.assertEqual("test_model1", client._embedding_model)
+
+class TestModelClientEmbedText(unittest.TestCase):
+    def test_embed_text_success(self):
+        client = MockModelClient(embedding_model = "test_model1")
+        result = client.embed_text("test prompt")
+        self.assertEqual([1.1], result)
+
+    def test_embed_text_no_embedding_model(self):
+        client = MockModelClient()
+        result = client.embed_text("test prompt")
+        self.assertEqual(result, [])
+
+    def test_embed_text_missing_embedding_model(self):
+        client = MockModelClient(embedding_model = "missing_model")
+        result = client.embed_text("test prompt")
+        self.assertEqual(result, [])
+
+    def test_embed_text_no_prompt(self):
+        client = MockModelClient(embedding_model = "test_model1")
+        result = client.embed_text("")
+        self.assertEqual(result, [])
 

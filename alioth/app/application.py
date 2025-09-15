@@ -24,18 +24,19 @@ def run_application():
     oll.set_embedding_model("mxbai-embed-large:latest")
     oai.set_embedding_model("text-embedding-3-large")
 
-    #class Country(BaseModel):
-        #capitol: str
-        #population: int
+    class Country(BaseModel):
+        capitol: str
+        population: int
 
-    #for c in [oll, oai]:
+    for c in [oll, oai]:
         # we can interchangeably operate on different model providers and query either
         # with string prompts or pydantic schema structured outputs?
-        #print(c.generate_text(
+        #print(c.generate_text(prompt = "what is the largest state in america?", system = "you are an elementary school teacher"))
             #prompt = "Briefly answer what is the largest state in America?",
             #system = "You are an astute scholar that provides research-level answers to questions."))
         #print(c.generate_text(prompt = "Answer about the United States of America", schema=Country))
 
+        print(c.embed_text("What is the capital of California?"))
 
 
     # next objective, create ResponseService, what does it need to achieve?

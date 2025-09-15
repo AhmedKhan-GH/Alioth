@@ -32,4 +32,7 @@ class OllamaModelClient(ModelClient):
         return content
 
     def _embed_text(self, prompt: str) -> list[float]:
-        return []
+        response = self._client.embed(
+            model = self._embedding_model,
+            input = prompt)
+        return response['embeddings'][0]
