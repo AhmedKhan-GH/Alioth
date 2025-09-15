@@ -4,3 +4,5 @@ openai
 ollama
 pytest
 pysocks
+pymupdf
+pydantic

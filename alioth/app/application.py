@@ -1,13 +1,10 @@
 from alioth.providers.ollama_modelclient import *
 from alioth.providers.openai_modelclient import *
+import alioth.services.fileservice as fs
 
 log = logging.getLogger(__name__)
 
-@try_catch()
-def run_application():
-    """Main Alioth application logic."""
-    log.info("Activating Alioth")
-
+def ai_model_test():
     # we can create provider model clients
     # that can be used interchangeably
     oll = OllamaModelClient()
@@ -39,7 +36,18 @@ def run_application():
         print(c.embed_text("What is the capital of California?"))
 
 
-    # next objective, create ResponseService, what does it need to achieve?
+@try_catch()
+def run_application():
+    """Main Alioth application logic."""
+    log.info("Activating Alioth")
+
+
+    file_path = '/Users/ahmed/Library/Mobile Documents/com~apple~CloudDocs/Eagle/Books.library/images/MELSY8Y3XB9HZ.info/Kimothi RetrievalAugmentedGeneration 1E.pdf'
+    save_path = '/Users/ahmed/PycharmProjects/Alioth/alioth/markdowns/output.md'
+
+    chunks = fs.get_chunks_from_file(file_path)
+    fs.save_chunks_to_markdown(save_path, chunks)
+    print("\n\n".join(fs.make_chunks_into_list(chunks)))
 
     log.info("Deactivating Alioth")
 
