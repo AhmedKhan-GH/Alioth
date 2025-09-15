@@ -34,3 +34,10 @@ class OpenAIModelClient(ModelClient):
                 input=messages,
             )
             return response.output_text
+
+    def _embed_text(self, prompt: str) -> list[float]:
+        response = self._client.embeddings.create(
+            model=self._embedding_model,
+            input=prompt
+        )
+        return response.data[0].embedding

@@ -1,12 +1,19 @@
 
 import logging
 
+from openai.types import embedding_model
+
 from alioth.core.decorators import try_catch
 
 log = logging.getLogger(__name__)
 from abc import ABC, abstractmethod
 from typing import Any, Optional, Union, Type
 from pydantic import BaseModel
+from enum import Enum, auto
+
+class ModelType(Enum):
+    EMBEDDING = auto(),
+    LANGUAGE = auto()
 
 class ModelClient(ABC):
     """Base class for all AI client providers."""
@@ -45,9 +52,15 @@ class ModelClient(ABC):
     @try_catch(exit_on_error=False, default_return="")
     @abstractmethod
     def _generate_text(self,
-                       prompt: str = "", system="",
+                       prompt: Optional[str] = None,
+                       system: Optional[str] = None,
                        schema: Optional[Type[BaseModel]] = None
                        ) -> Union[str, BaseModel]:
+        pass
+
+    @try_catch(exit_on_error=False, default_return=None)
+    @abstractmethod
+    def _embed_text(self, prompt: str) -> list:
         pass
 
 
@@ -89,35 +102,55 @@ class ModelClient(ABC):
         log.info(f"{self.__class__.__name__} connection check completed: {'OK' if result else 'FAILED'}")
         return result
 
-    @try_catch(exit_on_error=False, default_return=None, catch_exceptions=(ConnectionError, ValueError))
-    def set_language_model(self, new_model: str = ""):
-        self._system_check()
-        self._model_check(new_model)
+    def _model_check(self, model: Optional[str] = None):
 
-        if self._language_model == new_model:
-            log.info(f"{self.__class__.__name__} language model is already set to {self._language_model}")
+        # if given no parameter default to internal parameter
 
-        log.info(f"{self.__class__.__name__} setting language model to {new_model}")
-        self._language_model = new_model
-        log.info(f"{self.__class__.__name__} language model set to {new_model}")
+        if model is None:
+            model = self._language_model
 
-    @try_catch(exit_on_error=False, default_return=None, catch_exceptions=(ConnectionError, ValueError))
-    def set_embedding_model(self, new_model: str = ""):
-        self._system_check()
-        self._model_check(new_model)
+        if model is None or model == "":
+            raise ValueError(f"{self.__class__.__name__} model is missing")
+        # if it is still empty string or none then we raise an error
 
-        if self._embedding_model == new_model:
-            log.info(f"{self.__class__.__name__} embedding model is already set to {self._language_model}")
+        if model not in self._model_list:
+            raise ValueError(f"{self.__class__.__name__} model {model} not available")
+        # if we have specified a model that is missing also raise an error
 
-        log.info(f"{self.__class__.__name__} setting embedding model to {new_model}")
-        self._embedding_model = new_model
-        log.info(f"{self.__class__.__name__} embedding model set to {new_model}")
+    def _set_model(self, candidate: Optional[str] = None,
+                   type: ModelType = None):
 
-    # logging tested
+        if type is None:
+            raise ValueError(f"{self.__class__.__name__} model type is missing")
+        if type not in ModelType:
+            raise ValueError(f"{self.__class__.__name__} model type {type} not supported")
+
+        self._model_check(candidate)
+
+        if type == ModelType.EMBEDDING:
+            self._embedding_model = candidate
+        elif type == ModelType.LANGUAGE:
+            self._language_model = candidate
+
+    @try_catch(exit_on_error=False, default_return=None, catch_exceptions=ValueError)
+    def set_embedding_model(self, embedding_model: Optional[str] = None):
+        log.info(f"{self.__class__.__name__} setting embedding model to {embedding_model}")
+        self._set_model(embedding_model, ModelType.EMBEDDING)
+        log.info(f"{self.__class__.__name__} embedding model set to {embedding_model}")
+
+
+    @try_catch(exit_on_error=False, default_return=None, catch_exceptions=ValueError)
+    def set_language_model(self, language_model: Optional[str] = None):
+        log.info(f"{self.__class__.__name__} setting language model to {language_model}")
+        self._set_model(language_model, ModelType.LANGUAGE)
+        log.info(f"{self.__class__.__name__} language model set to {language_model}")
+
+        # logging tested
     # success and failure tested
     @try_catch(exit_on_error=False, default_return="", catch_exceptions=(ValueError, ConnectionError))
     def generate_text(self, prompt: str = "", system = "",
                       schema: Optional[Type[BaseModel]] = None) -> Union[str, BaseModel]:
+
         self._system_check()
         self._model_check()
 
@@ -148,20 +181,4 @@ class ModelClient(ABC):
             return ConnectionError(f"{self.__class__.__name__} client is not initialized")
         #log.info(f"{self.__class__.__name__} client is initialized")
         return None
-
-    # functionality tested
-    def _model_check(self, model: Optional[str] = None):
-        # method defaults to internal check if not given an external specification
-        if model is None:
-            model = self._language_model
-
-        if model == "":
-            raise ValueError(f"{self.__class__.__name__} model is not set")
-        #log.info(f"{self.__class__.__name__} model is set to {self._language_model}")
-
-        #log.info(f"{self.__class__.__name__} checking model {model} is available")
-        if model not in self._model_list:
-            raise ValueError(f"{self.__class__.__name__} model {self._language_model} not available")
-        #log.info(f"{self.__class__.__name__} model {self._model} is available")
-        return
 

@@ -30,3 +30,6 @@ class OllamaModelClient(ModelClient):
         if schema:
             return schema.model_validate_json(content)
         return content
+
+    def _embed_text(self, prompt: str) -> list[float]:
+        return []

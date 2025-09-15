@@ -14,6 +14,9 @@ class MockModelClient(ModelClient):
     def _list_models(self):
         return ["test_model1", "test_model2"]
 
+    def _embed_text(self, prompt: str) -> list[float]:
+        return []
+
     def _generate_text(self,
                        prompt: str = "", system = "",
                        schema: Type[Optional[BaseModel]] = None
@@ -31,13 +34,11 @@ class MockModelClient(ModelClient):
 
         return output
 
-
-
 class TestModelClientLogging(unittest.TestCase):
     """Testing base client"""
 
     def test_generate_text_logging(self):
-        client = MockModelClient()
+        client = MockModelClient(language_model = "test_model1")
         with self.assertLogs("alioth.core.modelclient", level="INFO") as cm:
             client.generate_text("test prompt")
             self.assertGreater(len(cm.records), 0)
@@ -84,12 +85,12 @@ class TestModelClientGenerateText(unittest.TestCase):
         result = client.generate_text("test prompt")
         self.assertEqual(result, "generated text")
 
-    def test_generate_text_no_model(self):
+    def test_generate_text_no_language_model(self):
         client = MockModelClient(language_model = "")
         result = client.generate_text("test prompt")
         self.assertEqual(result, "")
 
-    def test_generate_text_missing_model(self):
+    def test_generate_text_missing_language_model(self):
         client = MockModelClient(language_model = "missing_model")
         result = client.generate_text("test prompt")
         self.assertEqual(result, "")
@@ -112,7 +113,6 @@ class TestModelClientGenerateText(unittest.TestCase):
         client = MockModelClient(language_model = "test_model1")
         result = client.generate_text(prompt ="test prompt", system="test system prompt")
         self.assertEqual(result, "test system prompt\ngenerated text")
-
 
 class TestModelClientListModels(unittest.TestCase):
     def test_list_models_success(self):
@@ -158,24 +158,45 @@ class TestModelClientModelCheck(unittest.TestCase):
         with self.assertRaises(ValueError):
             client._model_check()
 
-class TestModelClientSetModel(unittest.TestCase):
-    def test_set_model_success(self):
+class TestModelClientSetLanguageModel(unittest.TestCase):
+    def test_set_language_model_success(self):
         client = MockModelClient(language_model = "test_model1")
         client.set_language_model("test_model2")
-        self.assertEqual(client._language_model, "test_model2")
+        self.assertEqual("test_model2", client._language_model)
 
-    def test_set_model_no_model(self):
+    def test_set_language_model_no_model(self):
         client = MockModelClient(language_model = "test_model1")
         client.set_language_model("")
-        self.assertEqual(client._language_model, "test_model1")
+        self.assertEqual("test_model1", client._language_model)
 
-    def test_set_model_missing_model(self):
+    def test_set_language_model_missing_model(self):
         client = MockModelClient(language_model = "test_model1")
         client.set_language_model("missing_model")
-        self.assertEqual(client._language_model, "test_model1")
+        self.assertEqual("test_model1", client._language_model)
 
-    def test_set_model_same_model(self):
+    def test_set_language_model_same_model(self):
         client = MockModelClient(language_model = "test_model1")
         client.set_language_model("test_model1")
-        self.assertEqual(client._language_model, "test_model1")
+        self.assertEqual("test_model1", client._language_model)
+
+class TestModelClientSetEmbeddingModel(unittest.TestCase):
+    def test_set_embedding_model_success(self):
+        client = MockModelClient(embedding_model = "test_model1")
+        client.set_embedding_model("test_model2")
+        self.assertEqual("test_model2", client._embedding_model)
+
+    def test_set_embedding_model_no_model(self):
+        client = MockModelClient(embedding_model = "test_model1")
+        client.set_embedding_model("")
+        self.assertEqual("test_model1", client._embedding_model)
+
+    def test_set_embedding_model_missing_model(self):
+        client = MockModelClient(embedding_model = "test_model1")
+        client.set_embedding_model("missing_model")
+        self.assertEqual("test_model1", client._embedding_model)
+
+    def test_set_embedding_model_same_model(self):
+        client = MockModelClient(embedding_model = "test_model1")
+        client.set_embedding_model("test_model1")
+        self.assertEqual("test_model1", client._embedding_model)
 

@@ -21,17 +21,22 @@ def run_application():
     oll.set_language_model("llama3.2:3b")
     oai.set_language_model("gpt-5-nano")
 
-    class Country(BaseModel):
-        capitol: str
-        population: int
+    oll.set_embedding_model("mxbai-embed-large:latest")
+    oai.set_embedding_model("text-embedding-3-large")
 
-    for c in [oll, oai]:
+    #class Country(BaseModel):
+        #capitol: str
+        #population: int
+
+    #for c in [oll, oai]:
         # we can interchangeably operate on different model providers and query either
         # with string prompts or pydantic schema structured outputs?
-        print(c.generate_text(
-            prompt = "Briefly answer what is the largest state in America?",
-            system = "You are an astute scholar that provides research-level answers to questions."))
-        print(c.generate_text(prompt = "Answer about the United States of America", schema=Country))
+        #print(c.generate_text(
+            #prompt = "Briefly answer what is the largest state in America?",
+            #system = "You are an astute scholar that provides research-level answers to questions."))
+        #print(c.generate_text(prompt = "Answer about the United States of America", schema=Country))
+
+
 
     # next objective, create ResponseService, what does it need to achieve?
 
