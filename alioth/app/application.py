@@ -33,21 +33,22 @@ def ai_model_test():
             #system = "You are an astute scholar that provides research-level answers to questions."))
         #print(c.generate_text(prompt = "Answer about the United States of America", schema=Country))
 
-        print(c.embed_text("What is the capital of California?"))
+        print(c.embed_text(["prompt1", "prompt2", "prompt3"]))
 
-
-@try_catch()
-def run_application():
-    """Main Alioth application logic."""
-    log.info("Activating Alioth")
-
-
+def chunking_test():
     file_path = '/Users/ahmed/Library/Mobile Documents/com~apple~CloudDocs/Eagle/Books.library/images/MELSY8Y3XB9HZ.info/Kimothi RetrievalAugmentedGeneration 1E.pdf'
     save_path = '/Users/ahmed/PycharmProjects/Alioth/alioth/markdowns/output.md'
 
     chunks = fs.get_chunks_from_file(file_path)
     fs.save_chunks_to_markdown(save_path, chunks)
     print("\n\n".join(fs.make_chunks_into_list(chunks)))
+
+@try_catch(exit_on_error=True, default_return=None)
+def run_application():
+    """Main Alioth application logic."""
+    log.info("Activating Alioth")
+
+    ai_model_test()
 
     log.info("Deactivating Alioth")
 

@@ -60,7 +60,7 @@ class ModelClient(ABC):
 
     @try_catch(exit_on_error=False, default_return=None)
     @abstractmethod
-    def _embed_text(self, prompt: str) -> list:
+    def _embed_text(self, prompt: Union[str, list[str]]) -> Union[list[float], list[list[float]]]:
         pass
 
 
@@ -132,7 +132,7 @@ class ModelClient(ABC):
         return result
 
     @try_catch(exit_on_error=False, default_return=[], catch_exceptions=(ValueError, ConnectionError))
-    def embed_text(self, text: str) -> list:
+    def embed_text(self, text: Union[str, list[str]]) -> Union[list[float], list[list[float]]]:
         self._system_check()
         self._check_embedding_model()
 
@@ -141,7 +141,7 @@ class ModelClient(ABC):
 
         log.info(f"{self.__class__.__name__} attempting to embed text")
         result = self._embed_text(prompt=text)
-        log.info(f"{self.__class__.__name__} embedded text in {len(result)} dimensions")
+        log.info(f"{self.__class__.__name__} successfully embedded text")
         return result
 
     # logging tested

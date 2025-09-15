@@ -35,4 +35,4 @@ class OllamaModelClient(ModelClient):
         response = self._client.embed(
             model = self._embedding_model,
             input = prompt)
-        return response['embeddings'][0]
+        return response['embeddings'] if isinstance(prompt, list) else response['embeddings'][0]

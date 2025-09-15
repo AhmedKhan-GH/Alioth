@@ -35,9 +35,9 @@ class OpenAIModelClient(ModelClient):
             )
             return response.output_text
 
-    def _embed_text(self, prompt: str) -> list[float]:
+    def _embed_text(self, prompt):
         response = self._client.embeddings.create(
             model=self._embedding_model,
             input=prompt
         )
-        return response.data[0].embedding
+        return [d.embedding for d in response.data] if isinstance(prompt, list) else response.data[0].embedding
