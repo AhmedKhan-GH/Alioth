@@ -1,29 +1,102 @@
-from abc import ABC, abstractmethod
-import pymupdf4llm
-import pathlib
+import pymupdf
 import logging
-from pathlib import Path
-from alioth.core.decorators import *
+from typing import Optional, Tuple
+from enum import Enum, auto
 import re
+import base64
+import tkinter as tk
+
+from pymupdf.extra import page_count
 
 log = logging.getLogger(__name__)
 
-@try_catch(exit_on_error=False, default_return = None)
-def get_chunks_from_file(file_path: str):
-    log.info(f"attempting to read and chunk file: {Path(file_path).name}")
-    result = pymupdf4llm.to_markdown(file_path)
-    log.info(f"successfully read and chunked file: {Path(file_path).name}")
-    return result
+# you have to specify a path, and now this serves as the
+# location where you can do read or write, and that permission
+# will be instantiated at init
+class FileService():
+    def __init__(self, file_path: str):
+        self._file_path = file_path
+        return
 
-@try_catch(exit_on_error=False, default_return = None)
-def save_chunks_to_markdown(save_path, chunks):
-    log.info(f"attempting to save chunks to markdown file: {Path(save_path).name}")
-    pathlib.Path(save_path).write_bytes(chunks.encode())
-    log.info(f"successfully saved chunks to markdown file: {Path(save_path).name}")
+    # create a file service object that exists as a
+    # representation of the file in the system
+    # then it cannot return any pymupdf specific
+    # data structures only generic python objects
 
-@try_catch(exit_on_error=False, default_return = None)
-def make_chunks_into_list(markdown) -> list[str]:
-    log.info(f"attempting to split markdown into list of strings")
-    result = re.split(r'(?=^#{1,6}\s)', markdown, flags=re.MULTILINE)
-    log.info(f"successfully split markdown into list of strings")
-    return result
+    # either we want to get the list of all the blocks
+    # in a file with their associated metadata or we
+    # want to retrieve a specific page with highlighting
+
+    def get_block_list(self):
+        doc = pymupdf.open(self._file_path)
+        blocks_list = []
+        for pnum, page in enumerate(doc):
+            page_blocks = page.get_text("blocks")
+            for b in page_blocks:
+                x0, x1, y0, y1, text, bid, btype = b
+                text = text.replace("\n", "")
+
+                block_dict = {
+                    "text": text,
+                    "pnum": pnum,
+                    "bbox": (x0, x1, y0, y1),
+                }
+                blocks_list.append(block_dict)
+        doc.close()
+        return blocks_list
+
+    def show_highlighted_block(self, block: dict, zoom: float = 2.0, window_title: Optional[str] = None):
+        """
+        Open a small window to display the page containing `block` with that block highlighted.
+        - Does not save anything to disk.
+        - Closes when the window is closed by the user.
+
+        Args:
+            block: dict with keys { "pnum": int, "bbox": (x0, x1, y0, y1), ... }
+            zoom: render scale (1.0 = 72 DPI). Use 2.0 for better readability.
+            window_title: optional title for the preview window.
+        """
+        import base64
+        import tkinter as tk
+
+        # Load the page and add a temporary highlight annotation (not persisted)
+        doc = pymupdf.open(self._file_path)
+        try:
+            page = doc[block["pnum"]]
+            # Ensure bbox is interpreted as a rectangle (no persistence without save())
+            rect = pymupdf.Rect(block["bbox"])
+            page.add_highlight_annot(rect)
+
+            # Render page with annotations to an in-memory image
+            mat = pymupdf.Matrix(zoom/2, zoom/2)
+            pix = page.get_pixmap(matrix=mat, annots=True)  # includes highlight
+        finally:
+            # No save: nothing gets written to the original file
+            doc.close()
+
+        # Convert to PNG bytes for Tkinter PhotoImage
+        png_bytes = pix.tobytes("png")
+        b64_png = base64.b64encode(png_bytes)
+
+        # Create a simple Tk window to show the image
+        root = tk.Tk()
+        root.title(window_title or f"Page {block['pnum'] + 1} preview")
+
+        # Create Tk image from in-memory data (no files involved)
+        photo = tk.PhotoImage(data=b64_png)
+        label = tk.Label(root, image=photo)
+        label.image = photo  # keep a reference to avoid garbage collection
+        label.pack()
+
+        # Fit window size to image
+        root.geometry(f"{int(pix.width)}x{int(pix.height)}")
+
+        # Start the UI loop; window closes when user closes it
+        root.mainloop()
+
+    def get_highlighted_block(self, block, save_path: str):
+        doc = pymupdf.open(self._file_path)
+        page = doc[block["pnum"]]
+        highlight = page.add_highlight_annot(block["bbox"])
+        doc.save(save_path, garbage = 4, deflate = True, clean = True)
+        doc.close()

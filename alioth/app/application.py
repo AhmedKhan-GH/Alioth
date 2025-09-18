@@ -1,6 +1,8 @@
 from alioth.providers.ollama_modelclient import *
 from alioth.providers.openai_modelclient import *
-import alioth.services.fileservice as fs
+from alioth.services.fileservice import *
+from alioth.providers.chromadb_vectorclient import *
+import random
 
 log = logging.getLogger(__name__)
 
@@ -28,27 +30,51 @@ def ai_model_test():
     for c in [oll, oai]:
         # we can interchangeably operate on different model providers and query either
         # with string prompts or pydantic schema structured outputs?
-        #print(c.generate_text(prompt = "what is the largest state in america?", system = "you are an elementary school teacher"))
+        print(c.generate_text(prompt = "what is the largest state in america?", system = "you are an elementary school teacher"))
             #prompt = "Briefly answer what is the largest state in America?",
             #system = "You are an astute scholar that provides research-level answers to questions."))
-        #print(c.generate_text(prompt = "Answer about the United States of America", schema=Country))
+        print(c.generate_text(prompt = "Answer about the United States of America", schema=Country))
 
         print(c.embed_text(["prompt1", "prompt2", "prompt3"]))
 
 def chunking_test():
     file_path = '/Users/ahmed/Library/Mobile Documents/com~apple~CloudDocs/Eagle/Books.library/images/MELSY8Y3XB9HZ.info/Kimothi RetrievalAugmentedGeneration 1E.pdf'
-    save_path = '/Users/ahmed/PycharmProjects/Alioth/alioth/markdowns/output.md'
+    save_path = '/Users/ahmed/PycharmProjects/Alioth/alioth/markdowns/highlighted.pdf'
 
-    chunks = fs.get_chunks_from_file(file_path)
-    fs.save_chunks_to_markdown(save_path, chunks)
-    print("\n\n".join(fs.make_chunks_into_list(chunks)))
+    fs = FileService(file_path)
+    block_list = fs.get_block_list()
 
-@try_catch(exit_on_error=True, default_return=None)
+    #for bnum, b in enumerate(block_list, start = 1):
+    #    print(bnum, ": ", b["pnum"], ": ", b["text"], "\n\n")
+
+    #fs.get_embeddings() -> list[list[float]]
+    #internally it will pass around various methods
+    #that break the text, pass to api, etc
+
+    #import fileservice as fs
+    #fs.method()
+    # for file in list
+        #fs.chunk(file)
+    # need one method given a filepath, will return
+    #
+    # {page, bbox (x0, y0, x1, y1), text}
+
+    #fs = FileService(filepath)
+    #
+
+
+    #fs.save_chunks_to_markdown(save_path, chunks)
+    #print("\n\n".join(fs.make_chunks_into_list(chunks)))
+
+def chromadb_test():
+    chr = ChromaDBVectorClient()
+
+#@try_catch(exit_on_error=True, default_return=None)
 def run_application():
     """Main Alioth application logic."""
     log.info("Activating Alioth")
 
-    ai_model_test()
+    #chromadb_test()
 
     log.info("Deactivating Alioth")
 

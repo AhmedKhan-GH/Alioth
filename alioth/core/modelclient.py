@@ -133,6 +133,7 @@ class ModelClient(ABC):
 
     @try_catch(exit_on_error=False, default_return=[], catch_exceptions=(ValueError, ConnectionError))
     def embed_text(self, text: Union[str, list[str]]) -> Union[list[float], list[list[float]]]:
+
         self._system_check()
         self._check_embedding_model()
 

@@ -17,7 +17,7 @@ setup_logging(level=logging.INFO,
               handlers=[logging.FileHandler('app.log', mode='w'),
                         logging.StreamHandler(sys.stdout)])
 
-@try_catch()
+#@try_catch()
 def main():
 
     #verifies we can read environment vars and write logs
