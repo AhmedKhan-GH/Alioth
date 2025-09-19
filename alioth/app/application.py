@@ -49,7 +49,6 @@ def chunking_test():
     for bnum, b in enumerate(block_list, start=1):
         print(bnum, ": ", b["pnum"], ": ", b["text"], "\n\n")
 
-
     fs.live_highlight_view(block_list[0])
 
     plot_text_lengths(block_list)
