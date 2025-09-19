@@ -8,13 +8,13 @@ from typing import Any, Optional, Union, Type
 from pydantic import BaseModel
 from enum import Enum, auto
 
+from alioth.core.clientmixin import ClientMixin
 
 class ModelType(Enum):
     EMBEDDING = auto(),
     LANGUAGE = auto()
 
-
-class ModelClient(ABC):
+class ModelClient(ClientMixin):
     """Base class for all AI clients providers."""
 
     # == INITIALIZATION METHODS ==
@@ -31,31 +31,7 @@ class ModelClient(ABC):
 
         # we attempt to change our state
         self._initialize_connection()
-
-    @try_catch(exit_on_error=False, default_return=False, catch_exceptions=ConnectionError)
-    def _initialize_connection(self) -> Any:
-        # connection check guard clause
-        if self._check_connection():
-            log.info(f"{self.__class__.__name__} connection check successful")
-        else:
-            raise ConnectionError(f"{self.__class__.__name__} connection check failed")
-
-        self._client = self._create_client()
-
-        # if clients does not return null object we are connected
-        if self._client:
-            log.info(f"{self.__class__.__name__} clients creation successful")
-        else:
-            raise ConnectionError(f"{self.__class__.__name__} clients creation failed")
-
-        self._connected = True
-
-        # given we have created a clients and connected we can capture a model list
         self._model_list = self._list_models()
-
-        # if all code is successful then only do we change our state to
-        # _connected = True and _client = a clients object and they are
-        # tightly coupled
 
     # == ABSTRACT METHODS ==
 
@@ -86,13 +62,6 @@ class ModelClient(ABC):
         pass
 
     # == PUBLIC INTERFACE ==
-
-    @try_catch(exit_on_error=False, default_return=False)
-    def check_connection(self) -> bool:
-        log.info(f"{self.__class__.__name__} connection check started")
-        result = self._check_connection()
-        log.info(f"{self.__class__.__name__} connection check completed: {'OK' if result else 'FAILED'}")
-        return result
 
     @try_catch(exit_on_error=False, default_return=[])
     def list_models(self) -> list:

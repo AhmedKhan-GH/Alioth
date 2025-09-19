@@ -55,13 +55,13 @@ class TestLogging(unittest.TestCase):
 
     def test_check_connection_logging(self):
         client = MockModelClient(language_model = "test_model1")
-        with self.assertLogs("alioth.clients.modelclient", level="INFO") as cm:
+        with self.assertLogs("alioth.core.clientmixin", level="INFO") as cm:
             client.check_connection()
             self.assertGreater(len(cm.records), 0)
 
     def test_initialize_connection_logging(self):
         client = MockModelClient(language_model = "test_model1")
-        with self.assertLogs("alioth.clients.modelclient", level="INFO") as cm:
+        with self.assertLogs("alioth.core.clientmixin", level="INFO") as cm:
             client._initialize_connection()
             self.assertGreater(len(cm.records), 0)
 

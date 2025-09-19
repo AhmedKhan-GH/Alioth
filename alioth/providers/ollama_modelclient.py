@@ -11,7 +11,7 @@ class OllamaModelClient(ModelClient):
         return check_url_connection("http://localhost:11434/api/tags")
 
     def _create_client(self) -> Any:
-        return Client(host = 'http://localhost:11434', headers = {'Content-Type': 'application/json'})
+        return Client(host ='http://localhost:11434', headers = {'Content-Type': 'application/json'})
 
     def _list_models(self) -> list:
         return [m['model'] for m in self._client.list()['models']]

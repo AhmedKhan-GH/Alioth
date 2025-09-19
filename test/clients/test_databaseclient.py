@@ -1,18 +1,19 @@
 import unittest
-from unittest import mock
-
+from unittest.mock import patch, Mock
 from alioth.clients.databaseclient import *
 
 class MockDatabaseClient(DatabaseClient):
     def _check_connection(self):
         return True
 
+    def _create_client(self):
+        return Mock()
 
 class TestLogging(unittest.TestCase):
 
     def test_check_connection_logging(self):
         client = MockDatabaseClient()
-        with self.assertLogs("alioth.clients.databaseclient", level="INFO") as cm:
+        with self.assertLogs("alioth.core.clientmixin", level="INFO") as cm:
             client.check_connection()
             self.assertGreater(len(cm.records), 0)
 
@@ -24,5 +25,5 @@ class TestCheckConnection(unittest.TestCase):
 
     def test_check_connection_failure(self):
         client = MockDatabaseClient()
-        with mock.patch.object(client, '_check_connection', return_value=False):
+        with patch.object(client, '_check_connection', return_value=False):
             self.assertFalse(client.check_connection())

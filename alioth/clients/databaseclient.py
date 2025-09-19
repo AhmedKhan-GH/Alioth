@@ -1,21 +1,31 @@
 import logging
 from abc import ABC, abstractmethod
+from alioth.core.decorators import try_catch
+from alioth.core.clientmixin import ClientMixin
 
 log = logging.getLogger(__name__)
 
-class DatabaseClient(ABC):
+class DatabaseClient(ClientMixin):
 
     @abstractmethod
     def _check_connection(self):
         pass
 
-    def check_connection(self) -> bool:
-        log.info(f"{self.__class__.__name__} connection check started")
-        result = self._check_connection()
-        log.info(f"{self.__class__.__name__} connection check completed: {'OK' if result else 'FAILED'}")
-        return result
+    @abstractmethod
+    def _create_client(self):
+        pass
 
-    # need to create a method that initializes our central database
+
+    def __init__(self):
+        self._client = None
+        self._connected = False
+
+        self._initialize_connection()
+
+    def __exit__(self):
+        self._client.close()
+
+     # need to create a method that initializes our central database
     # if it does not already exist, but use it if it already does
     # there needs to be some mechanism to ensure that the database
     # was one that we explicitly created before instead of it being

@@ -2,21 +2,20 @@ import chromadb
 
 from abc import ABC, abstractmethod
 import logging
+from alioth.core.clientmixin import (ClientMixin)
 
 log = logging.getLogger(__name__)
 
 
-class VectorClient(ABC):
+class VectorClient(ClientMixin):
     def __init__(self):
-        self.check_connection()
+        self._client = None
+        self._connected = False
+
+        self._initialize_connection()
         pass
 
     @abstractmethod
     def _check_connection(self):
         pass
 
-    def check_connection(self) -> bool:
-        log.info(f"{self.__class__.__name__} connection check started")
-        result = self._check_connection()
-        log.info(f"{self.__class__.__name__} connection check completed: {'OK' if result else 'FAILED'}")
-        return result
