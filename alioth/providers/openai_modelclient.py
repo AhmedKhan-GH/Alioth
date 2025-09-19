@@ -1,6 +1,6 @@
 from openai import OpenAI
 
-from ..core.modelclient import *
+from ..client.modelclient import *
 from ..core.connection import *
 from ..core.environment import *
 

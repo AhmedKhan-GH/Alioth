@@ -1,6 +1,4 @@
 import unittest
-from abc import ABC
-from io import StringIO
 from unittest.mock import patch, Mock
 from alioth.core.modelclient import *
 
@@ -160,46 +158,46 @@ class TestListModels(unittest.TestCase):
             result = client.list_models()
             self.assertEqual(result, [])
 
-class TestHealthCheck(unittest.TestCase):
+class TestSystemCheck(unittest.TestCase):
     def test_system_check_success(self):
         client = MockModelClient(language_model = "test_model1")
-        client._system_check()
+        client._check_system()
 
     def test_system_check_connection_failure(self):
         with patch.object(MockModelClient,'_check_connection', return_value=False):
             client = MockModelClient(language_model = "test_model1")
             with self.assertRaises(ConnectionError):
-                client._system_check()
+                client._check_system()
 
     def test_system_check_client_failure(self):
         with patch.object(MockModelClient,'_create_client', return_value=None):
             client = MockModelClient(language_model = "test_model1")
             with self.assertRaises(ConnectionError):
-                client._system_check()
+                client._check_system()
 
-class TestModelCheck(unittest.TestCase):
+class TestCheckModel(unittest.TestCase):
     def test_model_check_language_model_success(self):
         client = MockModelClient(language_model = "test_model1")
-        client._model_check(type = ModelType.LANGUAGE)
+        client._check_model(model_type=ModelType.LANGUAGE)
 
-    def test_model_check_missing_language_model(self):
+    def test_check_model_missing_language_model(self):
         client = MockModelClient(language_model = "missing_model")
         with self.assertRaises(ValueError):
-            client._model_check(type = ModelType.LANGUAGE)
+            client._check_model(model_type=ModelType.LANGUAGE)
 
-    def test_model_check_missing_embedding_model(self):
+    def test_check_model_missing_embedding_model(self):
         client = MockModelClient(embedding_model = "missing_model")
         with self.assertRaises(ValueError):
-            client._model_check(type = ModelType.EMBEDDING)
+            client._check_model(model_type=ModelType.EMBEDDING)
 
-    def test_model_check_embedding_model_success(self):
+    def test_check_model_embedding_model_success(self):
         client = MockModelClient(embedding_model = "test_model1")
-        client._model_check(type = ModelType.EMBEDDING)
+        client._check_model(model_type=ModelType.EMBEDDING)
 
-    def test_model_check_no_model(self):
+    def test_check_model_no_model(self):
         client = MockModelClient()
         with self.assertRaises(ValueError):
-            client._model_check()
+            client._check_model()
 
 class TestSetLanguageModel(unittest.TestCase):
     def test_set_language_model_success(self):

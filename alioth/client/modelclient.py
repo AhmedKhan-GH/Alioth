@@ -1,8 +1,5 @@
 
 import logging
-
-from openai.types import embedding_model
-
 from alioth.core.decorators import try_catch
 
 log = logging.getLogger(__name__)
@@ -18,9 +15,9 @@ class ModelType(Enum):
 class ModelClient(ABC):
     """Base class for all AI client providers."""
 
-    def __init__(self,
-                 language_model: Optional[str] = None,
-                 embedding_model: Optional[str] = None):        # we initialize our initial state
+# == INITIALIZATION METHODS ==
+
+    def __init__(self, language_model: Optional[str] = None, embedding_model: Optional[str] = None):        # we initialize our initial state
         self._language_model = language_model
         self._embedding_model = embedding_model
 
@@ -32,43 +29,8 @@ class ModelClient(ABC):
         # we attempt to change our state
         self._initialize_connection()
 
-# == ABSTRACT METHODS ==
-
-    @try_catch(exit_on_error=False, default_return=False)
-    @abstractmethod
-    def _check_connection(self) -> bool:
-        pass
-
-    @try_catch(exit_on_error=False, default_return=[])
-    @abstractmethod
-    def _list_models(self) -> list[str]:
-        pass
-
-    @try_catch(exit_on_error=False, default_return=None)
-    @abstractmethod
-    def _create_client(self) -> Any:
-        pass
-
-    @try_catch(exit_on_error=False, default_return="")
-    @abstractmethod
-    def _generate_text(self,
-                       prompt: Optional[str] = None,
-                       system: Optional[str] = None,
-                       schema: Optional[Type[BaseModel]] = None
-                       ) -> Union[str, BaseModel]:
-        pass
-
-    @try_catch(exit_on_error=False, default_return=None)
-    @abstractmethod
-    def _embed_text(self, prompt: Union[str, list[str]]) -> Union[list[float], list[list[float]]]:
-        pass
-
-
-    # logging tested
-    # success and failure tested
-    @try_catch(exit_on_error=False, default_return = False, catch_exceptions=ConnectionError)
+    @try_catch(exit_on_error=False, default_return=False, catch_exceptions=ConnectionError)
     def _initialize_connection(self) -> Any:
-
         # connection check guard clause
         if self._check_connection():
             log.info(f"{self.__class__.__name__} connection check successful")
@@ -92,13 +54,49 @@ class ModelClient(ABC):
         # _connected = True and _client = a client object and they are
         # tightly coupled
 
-# == ABSTRACTED INTERFACE ==
+# == ABSTRACT METHODS ==
 
+    @try_catch(exit_on_error=False, default_return=False)
+    @abstractmethod
+    def _check_connection(self) -> bool:
+        pass
+
+    @try_catch(exit_on_error=False, default_return=[])
+    @abstractmethod
+    def _list_models(self) -> list[str]:
+        pass
+
+    @try_catch(exit_on_error=False, default_return=None)
+    @abstractmethod
+    def _create_client(self) -> Any:
+        pass
+
+    @try_catch(exit_on_error=False, default_return="")
+    @abstractmethod
+    def _generate_text(self, prompt: Optional[str] = None, system: Optional[str] = None,
+                       schema: Optional[Type[BaseModel]] = None) -> Union[str, BaseModel]:
+        pass
+
+    @try_catch(exit_on_error=False, default_return=None)
+    @abstractmethod
+    def _embed_text(self, prompt: Union[str, list[str]]) -> Union[list[float], list[list[float]]]:
+        pass
+
+# == PUBLIC INTERFACE ==
+
+    @try_catch(exit_on_error=False, default_return=False)
     def check_connection(self) -> bool:
         log.info(f"{self.__class__.__name__} connection check started")
         result = self._check_connection()
         log.info(f"{self.__class__.__name__} connection check completed: {'OK' if result else 'FAILED'}")
         return result
+
+    @try_catch(exit_on_error=False, default_return=[])
+    def list_models(self) -> list:
+        log.info(f"{self.__class__.__name__} retrieving list of models")
+        models = self._list_models()
+        log.info(f"{self.__class__.__name__} found {len(models)} models")
+        return models
 
     @try_catch(exit_on_error=False, default_return=None, catch_exceptions=ValueError)
     def set_embedding_model(self, embedding_model: Optional[str] = None):
@@ -106,21 +104,20 @@ class ModelClient(ABC):
         self._set_model(embedding_model, ModelType.EMBEDDING)
         log.info(f"{self.__class__.__name__} embedding model set to {embedding_model}")
 
-
     @try_catch(exit_on_error=False, default_return=None, catch_exceptions=ValueError)
     def set_language_model(self, language_model: Optional[str] = None):
         log.info(f"{self.__class__.__name__} setting language model to {language_model}")
         self._set_model(language_model, ModelType.LANGUAGE)
         log.info(f"{self.__class__.__name__} language model set to {language_model}")
 
-        # logging tested
+    # logging tested
     # success and failure tested
     @try_catch(exit_on_error=False, default_return="", catch_exceptions=(ValueError, ConnectionError))
     def generate_text(self, prompt: str = "", system = "",
                       schema: Optional[Type[BaseModel]] = None) -> Union[str, BaseModel]:
 
-        self._system_check()
-        self._check_language_model()
+        self._check_system()
+        self._check_model(model_type=ModelType.LANGUAGE)
 
         if prompt == "":
             raise ValueError(f"{self.__class__.__name__} prompt is missing")
@@ -134,8 +131,8 @@ class ModelClient(ABC):
     @try_catch(exit_on_error=False, default_return=[], catch_exceptions=(ValueError, ConnectionError))
     def embed_text(self, text: Union[str, list[str]]) -> Union[list[float], list[list[float]]]:
 
-        self._system_check()
-        self._check_embedding_model()
+        self._check_system()
+        self._check_model(model_type=ModelType.EMBEDDING)
 
         if text == "":
             raise ValueError(f"{self.__class__.__name__} text is missing")
@@ -145,17 +142,10 @@ class ModelClient(ABC):
         log.info(f"{self.__class__.__name__} successfully embedded text")
         return result
 
-    # logging tested
-    def list_models(self) -> list:
-        log.info(f"{self.__class__.__name__} retrieving list of models")
-        models = self._list_models()
-        log.info(f"{self.__class__.__name__} found {len(models)} models")
-        return models
+# == INTERNAL HELPER FUNCTIONS ==
+# no try catch as they are meant to raise errors to their parent functions
 
-# === INTERNAL HELPER FUNCTIONS ==
-
-    # functionality tested
-    def _system_check(self):
+    def _check_system(self):
         if not self._connected:
             raise ConnectionError(f"{self.__class__.__name__} is not connected")
         #log.info(f"{self.__class__.__name__} is connected")
@@ -164,50 +154,37 @@ class ModelClient(ABC):
         #log.info(f"{self.__class__.__name__} client is initialized")
         return None
 
-    def _type_check(self, type: ModelType):
-        if type is None:
+    def _check_type(self, model_type: ModelType):
+        if model_type is None:
             raise ValueError(f"{self.__class__.__name__} model type is missing")
-        if type not in ModelType:
+        if model_type not in ModelType:
             raise ValueError(f"{self.__class__.__name__} model type {type} not supported")
 
-    def _model_check(self, model: Optional[str] = None,
-                     type: Optional[ModelType] = None):
-
-        self._type_check(type)
+    def _check_model(self, model_name: Optional[str] = None, model_type: Optional[ModelType] = None):
+        self._check_type(model_type)
         # if given no parameter default to internal parameter
+        if model_name is None:
+            if model_type == ModelType.EMBEDDING:
+                model_name = self._embedding_model
+            elif model_type == ModelType.LANGUAGE:
+                model_name = self._language_model
 
-        if model is None:
-            if type == ModelType.EMBEDDING:
-                model = self._embedding_model
-            elif type == ModelType.LANGUAGE:
-                model = self._language_model
-
-        if model is None or model == "":
+        #if internal model is none
+        if model_name is None or model_name == "":
             raise ValueError(f"{self.__class__.__name__} model is missing")
         # if it is still empty string or none then we raise an error
-
-        if model not in self._model_list:
-            raise ValueError(f"{self.__class__.__name__} model {model} not available")
+        if model_name not in self._model_list:
+            raise ValueError(f"{self.__class__.__name__} model {model_name} not available")
         # if we have specified a model that is missing also raise an error
+        log.info(f"{self.__class__.__name__} model {model_name} found")
 
-    def _set_model(self, candidate: Optional[str] = None,
-                   type: ModelType = None):
+    def _set_model(self, model_name: Optional[str] = None,
+                   model_type: ModelType = None):
 
-        self._type_check(type)
+        self._check_type(model_type)
+        self._check_model(model_name=model_name, model_type=model_type)
 
-        self._model_check(model = candidate, type = type)
-
-        if type == ModelType.EMBEDDING:
-            self._embedding_model = candidate
-        elif type == ModelType.LANGUAGE:
-            self._language_model = candidate
-
-    def _check_embedding_model(self, embedding_model: Optional[str] = None):
-        log.info(f"{self.__class__.__name__} checking embedding model {embedding_model}")
-        self._model_check(embedding_model, ModelType.EMBEDDING)
-        log.info(f"{self.__class__.__name__} embedding model {embedding_model} is available")
-
-    def _check_language_model(self, language_model: Optional[str] = None):
-        log.info(f"{self.__class__.__name__} checking language model {language_model}")
-        self._model_check(language_model, ModelType.LANGUAGE)
-        log.info(f"{self.__class__.__name__} language model {language_model} is available")
+        if model_type == ModelType.EMBEDDING:
+            self._embedding_model = model_name
+        elif model_type == ModelType.LANGUAGE:
+            self._language_model = model_name

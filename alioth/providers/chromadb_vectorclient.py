@@ -1,5 +1,5 @@
 from alioth.core.connection import *
-from alioth.core.vectorclient import VectorClient
+from alioth.client.vectorclient import VectorClient
 import chromadb
 
 # later project, find methods that are common to all client

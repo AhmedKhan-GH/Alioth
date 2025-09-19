@@ -1,33 +1,33 @@
+
 from alioth.providers.ollama_modelclient import *
 from alioth.providers.openai_modelclient import *
 from alioth.services.fileservice import *
 from alioth.providers.chromadb_vectorclient import *
 import random
 
+import matplotlib
+import matplotlib.pyplot as plt
+
 log = logging.getLogger(__name__)
 
 def ai_model_test():
     # we can create provider model clients
     # that can be used interchangeably
-    oll = OllamaModelClient()
     oai = OpenAIModelClient()
 
     # we can observe the models available
-    oll.list_models()
     oai.list_models()
 
     # we can specify the model it uses at runtime
-    oll.set_language_model("llama3.2:3b")
     oai.set_language_model("gpt-5-nano")
 
-    oll.set_embedding_model("mxbai-embed-large:latest")
     oai.set_embedding_model("text-embedding-3-large")
 
     class Country(BaseModel):
         capitol: str
         population: int
 
-    for c in [oll, oai]:
+    for c in [oai]:
         # we can interchangeably operate on different model providers and query either
         # with string prompts or pydantic schema structured outputs?
         print(c.generate_text(prompt = "what is the largest state in america?", system = "you are an elementary school teacher"))
@@ -35,17 +35,24 @@ def ai_model_test():
             #system = "You are an astute scholar that provides research-level answers to questions."))
         print(c.generate_text(prompt = "Answer about the United States of America", schema=Country))
 
-        print(c.embed_text(["prompt1", "prompt2", "prompt3"]))
-
 def chunking_test():
+
     file_path = '/Users/ahmed/Library/Mobile Documents/com~apple~CloudDocs/Eagle/Books.library/images/MELSY8Y3XB9HZ.info/Kimothi RetrievalAugmentedGeneration 1E.pdf'
     save_path = '/Users/ahmed/PycharmProjects/Alioth/alioth/markdowns/highlighted.pdf'
 
-    fs = FileService(file_path)
+    new_file_path = '/Users/ahmed/Library/Mobile Documents/com~apple~CloudDocs/Eagle/Books.library/images/MFP10EXGITV2G.info/Alonso InformationRetrieval 1E.pdf'
+
+    fs = FileService(new_file_path)
     block_list = fs.get_block_list()
 
-    #for bnum, b in enumerate(block_list, start = 1):
-    #    print(bnum, ": ", b["pnum"], ": ", b["text"], "\n\n")
+    reverse_sort = block_list.sort(key=lambda x: len(x["text"]), reverse=True)
+    for bnum, b in enumerate(block_list, start=1):
+        print(bnum, ": ", b["pnum"], ": ", b["text"], "\n\n")
+
+
+    fs.live_highlight_view(block_list[0])
+
+    plot_text_lengths(block_list)
 
     #fs.get_embeddings() -> list[list[float]]
     #internally it will pass around various methods
@@ -66,6 +73,17 @@ def chunking_test():
     #fs.save_chunks_to_markdown(save_path, chunks)
     #print("\n\n".join(fs.make_chunks_into_list(chunks)))
 
+def plot_text_lengths(block_list):
+
+    text_lengths = [len(block["text"]) for block in block_list]
+    plt.figure(figsize=(10, 6))
+    plt.hist(text_lengths, bins=50, edgecolor='black')
+    plt.title('Distribution of Text Block Lengths')
+    plt.xlabel('Text Length')
+    plt.ylabel('Frequency')
+    plt.show()
+
+
 def chromadb_test():
     chr = ChromaDBVectorClient()
 
@@ -74,7 +92,8 @@ def run_application():
     """Main Alioth application logic."""
     log.info("Activating Alioth")
 
-    #chromadb_test()
+    chunking_test()
 
     log.info("Deactivating Alioth")
-
+    
+ 
