@@ -1,14 +1,9 @@
-import chromadb
-
-from abc import ABC, abstractmethod
 import logging
+from abc import ABC, abstractmethod
 
 log = logging.getLogger(__name__)
 
-class VectorClient(ABC):
-    def __init__(self):
-        self.check_connection()
-        pass
+class DatabaseClient(ABC):
 
     @abstractmethod
     def _check_connection(self):
@@ -19,3 +14,9 @@ class VectorClient(ABC):
         result = self._check_connection()
         log.info(f"{self.__class__.__name__} connection check completed: {'OK' if result else 'FAILED'}")
         return result
+
+    # need to create a method that initializes our central database
+    # if it does not already exist, but use it if it already does
+    # there needs to be some mechanism to ensure that the database
+    # was one that we explicitly created before instead of it being
+    # user created and potentially harboring a malicious payload

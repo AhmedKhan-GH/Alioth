@@ -1,11 +1,11 @@
 
 from alioth.providers.ollama_modelclient import *
 from alioth.providers.openai_modelclient import *
+from alioth.providers.postgres_databaseclient import PostgresDatabaseClient
 from alioth.services.fileservice import *
 from alioth.providers.chromadb_vectorclient import *
 import random
 
-import matplotlib
 import matplotlib.pyplot as plt
 
 log = logging.getLogger(__name__)
@@ -87,12 +87,17 @@ def plot_text_lengths(block_list):
 def chromadb_test():
     chr = ChromaDBVectorClient()
 
+def postgres_test():
+    post = PostgresDatabaseClient()
+    print(post.check_connection())
+
 #@try_catch(exit_on_error=True, default_return=None)
 def run_application():
     """Main Alioth application logic."""
     log.info("Activating Alioth")
 
-    chunking_test()
+    #chunking_test()
+    postgres_test()
 
     log.info("Deactivating Alioth")
     

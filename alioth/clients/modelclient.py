@@ -1,5 +1,5 @@
-
 import logging
+
 from alioth.core.decorators import try_catch
 
 log = logging.getLogger(__name__)
@@ -8,16 +8,19 @@ from typing import Any, Optional, Union, Type
 from pydantic import BaseModel
 from enum import Enum, auto
 
+
 class ModelType(Enum):
     EMBEDDING = auto(),
     LANGUAGE = auto()
 
+
 class ModelClient(ABC):
-    """Base class for all AI client providers."""
+    """Base class for all AI clients providers."""
 
-# == INITIALIZATION METHODS ==
+    # == INITIALIZATION METHODS ==
 
-    def __init__(self, language_model: Optional[str] = None, embedding_model: Optional[str] = None):        # we initialize our initial state
+    def __init__(self, language_model: Optional[str] = None,
+                 embedding_model: Optional[str] = None):  # we initialize our initial state
         self._language_model = language_model
         self._embedding_model = embedding_model
 
@@ -39,22 +42,22 @@ class ModelClient(ABC):
 
         self._client = self._create_client()
 
-        # if client does not return null object we are connected
+        # if clients does not return null object we are connected
         if self._client:
-            log.info(f"{self.__class__.__name__} client creation successful")
+            log.info(f"{self.__class__.__name__} clients creation successful")
         else:
-            raise ConnectionError(f"{self.__class__.__name__} client creation failed")
+            raise ConnectionError(f"{self.__class__.__name__} clients creation failed")
 
         self._connected = True
 
-        # given we have created a client and connected we can capture a model list
+        # given we have created a clients and connected we can capture a model list
         self._model_list = self._list_models()
 
         # if all code is successful then only do we change our state to
-        # _connected = True and _client = a client object and they are
+        # _connected = True and _client = a clients object and they are
         # tightly coupled
 
-# == ABSTRACT METHODS ==
+    # == ABSTRACT METHODS ==
 
     @try_catch(exit_on_error=False, default_return=False)
     @abstractmethod
@@ -82,7 +85,7 @@ class ModelClient(ABC):
     def _embed_text(self, prompt: Union[str, list[str]]) -> Union[list[float], list[list[float]]]:
         pass
 
-# == PUBLIC INTERFACE ==
+    # == PUBLIC INTERFACE ==
 
     @try_catch(exit_on_error=False, default_return=False)
     def check_connection(self) -> bool:
@@ -113,7 +116,7 @@ class ModelClient(ABC):
     # logging tested
     # success and failure tested
     @try_catch(exit_on_error=False, default_return="", catch_exceptions=(ValueError, ConnectionError))
-    def generate_text(self, prompt: str = "", system = "",
+    def generate_text(self, prompt: str = "", system="",
                       schema: Optional[Type[BaseModel]] = None) -> Union[str, BaseModel]:
 
         self._check_system()
@@ -142,16 +145,16 @@ class ModelClient(ABC):
         log.info(f"{self.__class__.__name__} successfully embedded text")
         return result
 
-# == INTERNAL HELPER FUNCTIONS ==
-# no try catch as they are meant to raise errors to their parent functions
+    # == INTERNAL HELPER FUNCTIONS ==
+    # no try catch as they are meant to raise errors to their parent functions
 
     def _check_system(self):
         if not self._connected:
             raise ConnectionError(f"{self.__class__.__name__} is not connected")
-        #log.info(f"{self.__class__.__name__} is connected")
+        # log.info(f"{self.__class__.__name__} is connected")
         if self._client is None:
-            return ConnectionError(f"{self.__class__.__name__} client is not initialized")
-        #log.info(f"{self.__class__.__name__} client is initialized")
+            return ConnectionError(f"{self.__class__.__name__} clients is not initialized")
+        # log.info(f"{self.__class__.__name__} clients is initialized")
         return None
 
     def _check_type(self, model_type: ModelType):
@@ -169,7 +172,7 @@ class ModelClient(ABC):
             elif model_type == ModelType.LANGUAGE:
                 model_name = self._language_model
 
-        #if internal model is none
+        # if internal model is none
         if model_name is None or model_name == "":
             raise ValueError(f"{self.__class__.__name__} model is missing")
         # if it is still empty string or none then we raise an error

@@ -1,11 +1,11 @@
 from openai import OpenAI
 
-from ..client.modelclient import *
+from ..clients.modelclient import *
 from ..core.connection import *
 from ..core.environment import *
 
 class OpenAIModelClient(ModelClient):
-    """OpenAI client provider."""
+    """OpenAI clients provider."""
 
     def _check_connection(self) -> bool:
         api_key = get_environment_variable('OPENAI_API_KEY', required = True)

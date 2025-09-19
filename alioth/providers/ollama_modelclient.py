@@ -1,12 +1,11 @@
-from ..client.modelclient import *
+from ..clients.modelclient import *
 from ..core.connection import *
 from ..core.environment import *
-
 
 from ollama import Client
 
 class OllamaModelClient(ModelClient):
-    """Ollama client provider."""
+    """Ollama clients provider."""
 
     def _check_connection(self) -> bool:
         return check_url_connection("http://localhost:11434/api/tags")

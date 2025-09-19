@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch, Mock
-from alioth.core.modelclient import *
+from alioth.clients.modelclient import *
 
 class MockModelClient(ModelClient):
     def _check_connection(self):
@@ -33,35 +33,35 @@ class MockModelClient(ModelClient):
         return output
 
 class TestLogging(unittest.TestCase):
-    """Testing base client"""
+    """Testing base clients"""
 
     def test_embed_text_logging(self):
         client = MockModelClient(language_model="test_model1")
-        with self.assertLogs("alioth.core.modelclient", level="INFO") as cm:
+        with self.assertLogs("alioth.clients.modelclient", level="INFO") as cm:
             client.embed_text("test prompt")
             self.assertGreater(len(cm.records), 0)
 
     def test_generate_text_logging(self):
         client = MockModelClient(language_model = "test_model1")
-        with self.assertLogs("alioth.core.modelclient", level="INFO") as cm:
+        with self.assertLogs("alioth.clients.modelclient", level="INFO") as cm:
             client.generate_text("test prompt")
             self.assertGreater(len(cm.records), 0)
 
     def test_list_models_logging(self):
         client = MockModelClient(language_model = "test_model1")
-        with self.assertLogs("alioth.core.modelclient", level="INFO") as cm:
+        with self.assertLogs("alioth.clients.modelclient", level="INFO") as cm:
             client.list_models()
             self.assertGreater(len(cm.records), 0)
 
     def test_check_connection_logging(self):
         client = MockModelClient(language_model = "test_model1")
-        with self.assertLogs("alioth.core.modelclient", level="INFO") as cm:
+        with self.assertLogs("alioth.clients.modelclient", level="INFO") as cm:
             client.check_connection()
             self.assertGreater(len(cm.records), 0)
 
     def test_initialize_connection_logging(self):
         client = MockModelClient(language_model = "test_model1")
-        with self.assertLogs("alioth.core.modelclient", level="INFO") as cm:
+        with self.assertLogs("alioth.clients.modelclient", level="INFO") as cm:
             client._initialize_connection()
             self.assertGreater(len(cm.records), 0)
 
