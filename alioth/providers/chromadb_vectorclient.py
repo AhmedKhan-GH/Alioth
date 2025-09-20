@@ -2,11 +2,12 @@ from alioth.core.connection import *
 from alioth.clients.vectorclient import VectorClient
 import chromadb
 
-# later project, find methods that are common to all clients
-# providing classes such as the external logging check_connection
-# that call internal methods, etc, and put that into some Mixin
-# class so that I dont have to keep writing those methods over
-# and over again for each provider
+#id: chunk_uuid, will refer to the postgres chunks table
+#embedding: list[float], will be a vector bound to a certain model
+#metadata:
+#   file_id: file_uuid, will refer to postgres files table
+#   norm_hash: string, a hash of concatenated normalization
+#   parameters such as removing newlines, removing headers
 
 class ChromaDBVectorClient(VectorClient):
 

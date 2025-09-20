@@ -15,7 +15,6 @@ class DatabaseClient(ClientMixin):
     def _create_client(self):
         pass
 
-
     def __init__(self):
         self._client = None
         self._connected = False

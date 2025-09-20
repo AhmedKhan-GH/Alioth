@@ -89,6 +89,7 @@ def chromadb_test():
 def postgres_test():
     post = PostgresDatabaseClient()
     print(post.check_connection())
+    post.test_database()
 
 #@try_catch(exit_on_error=True, default_return=None)
 def run_application():
